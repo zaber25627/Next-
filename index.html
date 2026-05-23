@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Pro Panel</title>
+    <title>Admin Pro Panel - Final</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -253,7 +253,7 @@
         </div>
         <div id="tasks-list" style="padding: 0 15px;"></div>
 
-        <!-- MILESTONES SECTION (ADDED BACK) -->
+        <!-- MILESTONES SECTION -->
         <div class="content-card" style="margin-top:30px; border-top: 4px solid var(--warning);">
             <div class="section-title"><i class="fas fa-gift"></i> Manage Milestones</div>
             <input type="hidden" id="mile-id">
@@ -274,7 +274,7 @@
         <div id="mile-list" style="padding: 0 15px; margin-bottom:20px;"></div>
     </div>
 
-    <!-- SETTINGS VIEW (WITH AD LIMIT) -->
+    <!-- SETTINGS VIEW -->
     <div id="view-settings" class="view">
         <div class="content-card">
             <div class="section-title"><i class="fas fa-cogs"></i> App Configuration</div>
@@ -306,13 +306,18 @@
             <div class="section-title"><i class="fas fa-ad"></i> Ad Network Control</div>
             <p style="font-size: 0.8rem; color: #777; margin-bottom: 15px;">Enter IDs or Links below. Leave empty to hide from users.</p>
             
-            <!-- AD LIMIT ADDED -->
-            <div class="form-group"><label class="form-label">Daily Ad Limit per User</label><input type="number" id="ad-limit" class="form-input" value="20"></div>
+            <div class="form-group">
+                <label class="form-label">Daily Ad Limit per User</label>
+                <input type="number" id="ad-limit" class="form-input" value="20">
+            </div>
 
-            <div class="form-group"><label class="form-label">1. Adsterra Link</label><input type="text" id="ad-1" class="form-input"></div>
-            <div class="form-group"><label class="form-label">2. AdsGram ID</label><input type="text" id="ad-2" class="form-input"></div>
-            <div class="form-group"><label class="form-label">3. Monetag Link</label><input type="text" id="ad-3" class="form-input"></div>
-            <div class="form-group"><label class="form-label">4. Extra Ad Link</label><input type="text" id="ad-4" class="form-input"></div>
+            <div class="form-group"><label class="form-label">1. Adsterra Link</label><input type="text" id="ad-1" class="form-input" placeholder="https://..."></div>
+            <div class="form-group"><label class="form-label">2. AdsGram ID</label><input type="text" id="ad-2" class="form-input" placeholder="Block ID"></div>
+            <div class="form-group"><label class="form-label">3. Monetag Link</label><input type="text" id="ad-3" class="form-input" placeholder="https://..."></div>
+            <div class="form-group"><label class="form-label">4. Extra Ad Link</label><input type="text" id="ad-4" class="form-input" placeholder="https://..."></div>
+            
+            <!-- ADDED BUTTON FOR ADS -->
+            <button class="btn btn-primary" onclick="saveAds()"><i class="fas fa-save"></i> Save Ad Settings</button>
         </div>
     </div>
 
@@ -397,7 +402,7 @@
             db.ref('settings/announcement').set(msg).then(() => showToast(save ? "Notice Published" : "Notice Removed"));
         }
 
-        // --- 5. SETTINGS & ADS (WITH AD LIMIT) ---
+        // --- 5. SETTINGS & ADS ---
         function loadSettings() {
             db.ref('settings').on('value', snap => {
                 const v = snap.val() || {};
@@ -417,7 +422,7 @@
                 $('notice-input').value = v.announcement || "";
 
                 const ads = v.ads || {};
-                // Load Ad Limit
+                // Load Ad Limit & IDs
                 $('ad-limit').value = ads.dailyLimit || 20;
                 $('ad-1').value = ads.adsterraLink || "";
                 $('ad-2').value = ads.adsgramId || "";
@@ -426,29 +431,58 @@
             });
         }
 
-        function saveSettings() {
+        // --- NEW: SAVE ADS ONLY ---
+        function saveAds() {
             const data = {
-                botLink: $('set-bot').value,
-                minWithdraw: parseFloat($('set-min-w').value) || 0,
-                minRefWithdraw: parseInt($('set-min-ref').value) || 0,
-                minTaskWithdraw: parseInt($('set-min-task').value) || 0,
-                minAdWithdraw: parseInt($('set-min-ad').value) || 0,
-                // Save Dual Tax
-                withdrawTax: parseFloat($('set-tax-pct').value) || 0,
-                withdrawFee: parseFloat($('set-tax-fix').value) || 0,
-                processingTime: $('set-proc').value,
-                perRefReward: parseFloat($('set-ref-r').value) || 0,
-                adReward: parseFloat($('set-ad-r').value) || 0,
-                announcement: $('notice-input').value,
                 ads: {
-                    dailyLimit: parseInt($('ad-limit').value) || 20, // Save Ad Limit
+                    dailyLimit: parseInt($('ad-limit').value) || 20,
                     adsterraLink: $('ad-1').value,
                     adsgramId: $('ad-2').value,
                     monetagId: $('ad-3').value,
                     extraLink: $('ad-4').value
                 }
             };
-            db.ref('settings').update(data).then(() => showToast("Settings Saved!"));
+            db.ref('settings').update(data)
+                .then(() => showToast("Ad Settings Saved Successfully!"))
+                .catch((error) => {
+                    console.error("Save Error:", error);
+                    showToast("Save Failed: " + error.message);
+                });
+        }
+
+        function saveSettings() {
+            // সব ভ্যালু নিয়ে আসা
+            const data = {
+                botLink: $('set-bot').value,
+                minWithdraw: parseFloat($('set-min-w').value) || 0,
+                minRefWithdraw: parseInt($('set-min-ref').value) || 0,
+                minTaskWithdraw: parseInt($('set-min-task').value) || 0,
+                minAdWithdraw: parseInt($('set-min-ad').value) || 0,
+                // Dual Tax
+                withdrawTax: parseFloat($('set-tax-pct').value) || 0,
+                withdrawFee: parseFloat($('set-tax-fix').value) || 0,
+                // Others
+                processingTime: $('set-proc').value,
+                perRefReward: parseFloat($('set-ref-r').value) || 0,
+                adReward: parseFloat($('set-ad-r').value) || 0,
+                announcement: $('notice-input').value,
+                // AD NETWORKS OBJECT
+                ads: {
+                    dailyLimit: parseInt($('ad-limit').value) || 20,
+                    adsterraLink: $('ad-1').value,
+                    adsgramId: $('ad-2').value,
+                    monetagId: $('ad-3').value,
+                    extraLink: $('ad-4').value
+                }
+            };
+
+            // Firebase এ সেভ
+            db.ref('settings').update(data)
+                .then(() => showToast("Settings Saved Successfully!"))
+                .catch((error) => {
+                    console.error("Save Error:", error);
+                    showToast("Save Failed: " + error.message);
+                });
         }
 
         // --- 6. TASKS ---
@@ -480,7 +514,7 @@
         }
         function deleteItem(path) { if(confirm("Are you sure?")) db.ref(path).remove().then(() => showToast("Deleted")); }
 
-        // --- 6.5 MILESTONES (ADDED BACK) ---
+        // --- 6.5 MILESTONES ---
         function loadMilestones() {
             db.ref('milestones').on('value', snap => {
                 let html = "";
@@ -509,7 +543,7 @@
         }
         function editMilestone(key, title, req, reward) {
             $('mile-id').value = key; $('mile-title').value = title; $('mile-req').value = req; $('mile-rew').value = reward;
-            window.scrollTo({ top: document.querySelector('#view-tasks').scrollHeight, behavior: 'smooth' });
+            window.scrollTo({ top: document.getElementById('view-tasks').scrollHeight, behavior: 'smooth' });
         }
 
         // --- 7. WITHDRAWALS ---
@@ -620,7 +654,7 @@
             currentModalUserId = uid; $('modal-details').style.display = 'flex';
             db.ref('users/' + uid).once('value').then(snap => {
                 const u = snap.val();
-                let bal = parseFloat(u.balance) || 0; let earned = parseFloat(u.totalEarned) || 0;
+                let bal = parseFloat(u.balance) || 0; 
                 $('m-username').innerText = u.firstName + " Details"; $('m-balance').innerText = bal.toFixed(2) + " Tk";
                 let ads = 0; if(u.dailyAds) Object.values(u.dailyAds).forEach(v => ads+=v);
                 let tasks = 0; if(u.taskHistory) Object.values(u.taskHistory).forEach(v => {if(v) tasks++});
