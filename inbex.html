@@ -1,1019 +1,998 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>💎 Luxora Bd Trusted 💎</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <title>TaskHive EarnCash Pro 💎</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;00&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+    <script src="https://sad.adsgram.ai/js/sad.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <style>
-        :root {
-            /* Professional Color Palette - Light Theme Base */
-            --font-family: 'Poppins', sans-serif;
-            --primary-color: #D32F2F; /* Deep Red */
-            --primary-gradient: linear-gradient(135deg, #D32F2F 0%, #B71C1C 100%);
-            --secondary-color: #FFC107; /* Premium Gold */
-            --bg-color: #F4F6F8;
-            --surface-color: #FFFFFF;
-            --text-primary: #1F2937;
-            --text-secondary: #6B7280;
-            --border-color: #E5E7EB;
-            --success: #10B981;
-            --danger: #EF4444;
-            --pending: #F59E0B;
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            --radius: 12px;
+        :root { 
+            --primary: #4361ee; 
+            --secondary: #7209b7; 
+            --bg: #f8f9fa; 
+            --surface: #FFFFFF; 
+            --text: #2b2d42; 
+            --gold: #ffd60a; 
+            --silver: #e0e1dd; 
+            --bronze: #c1121f; 
+            --danger: #ef233c; 
+            --success: #06d6a0; 
+            --dark: #1b263b;
+            --info: #4cc9f0;
         }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: var(--bg); color: var(--text); padding-bottom: 100px; overflow-x: hidden; }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            font-family: var(--font-family);
-            background-color: var(--bg-color);
-            color: var(--text-primary);
-            transition: background-color 0.3s ease;
-            overflow-x: hidden;
+        /* Common Utils */
+        .hidden { display: none !important; }
+        .text-center { text-align: center; }
+        .flex-center { display: flex; justify-content: center; align-items: center; }
+
+        /* Main App Container */
+        #app { max-width: 480px; margin: 0 auto; min-height: 100vh; position: relative; display: none; background: var(--bg); }
+
+        /* Gatekeeper (Force Join) Screen */
+        #force-join-screen {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #4361ee, #7209b7); z-index: 10000;
+            display: none; 
+            flex-direction: column; align-items: center; justify-content: center; padding: 30px; color: white;
         }
-
-        /* --- ADVANCED LOADING SCREEN --- */
-        #app-loader {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-color);
-            z-index: 9999;
-            display: flex; flex-direction: column;
-            justify-content: center; align-items: center;
-            transition: opacity 0.6s ease;
+        .gate-card { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 25px; border-radius: 20px; width: 100%; max-width: 400px; border: 1px solid rgba(255,255,255,0.2); }
+        .gate-title { font-size: 1.5rem; font-weight: 700; margin-bottom: 10px; text-align: center; }
+        .gate-desc { font-size: 0.9rem; text-align: center; margin-bottom: 20px; opacity: 0.9; line-height: 1.4; }
+        .channel-list { display: flex; flex-direction: column; gap: 10px; }
+        .channel-btn {
+            background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); color: white;
+            padding: 12px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between;
+            cursor: pointer; transition: 0.3s; text-decoration: none; font-weight: 600;
         }
-
-        .loader-container {
-            position: relative;
-            width: 80px; height: 80px;
-            display: flex; justify-content: center; align-items: center;
+        .channel-btn:active { transform: scale(0.98); background: rgba(255,255,255,0.25); }
+        .channel-btn i { font-size: 1.2rem; }
+        .channel-btn.verified { background: var(--success); border-color: var(--success); cursor: default; }
+        .channel-btn.verified i { animation: pulse 2s infinite; }
+        .enter-btn {
+            margin-top: 20px; width: 100%; padding: 15px; background: var(--gold); color: var(--dark);
+            border: none; border-radius: 12px; font-weight: 700; font-size: 1.1rem; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2); opacity: 0.5; pointer-events: none; transition: 0.3s;
         }
+        .enter-btn.active { opacity: 1; pointer-events: all; }
+        .enter-btn.active:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.3); }
 
-        /* Outer Ring */
-        .loader-ring {
-            position: absolute;
-            width: 100%; height: 100%;
-            border: 4px solid transparent;
-            border-top: 4px solid var(--primary-color);
-            border-right: 4px solid var(--primary-color);
-            border-radius: 50%;
-            animation: spin 1.5s linear infinite;
+        /* Ban Screen */
+        #ban-screen {
+            position: fixed; inset: 0; background: #2b2d42; z-index: 10001;
+            display: none; flex-direction: column; align-items: center; justify-content: center; color: white; text-align: center; padding: 30px;
         }
+        .ban-icon { font-size: 4rem; color: var(--danger); margin-bottom: 20px; animation: shake 0.5s; }
+        @keyframes shake { 0% { transform: translate(1px, 1px); } 50% { transform: translate(-1px, -2px); } 100% { transform: translate(1px, 1px); } }
 
-        /* Inner Ring */
-        .loader-ring-inner {
-            position: absolute;
-            width: 60px; height: 60px;
-            border: 4px solid transparent;
-            border-bottom: 4px solid var(--secondary-color);
-            border-left: 4px solid var(--secondary-color);
-            border-radius: 50%;
-            animation: spin-reverse 1s linear infinite;
-        }
-
-        /* Center Icon */
-        .loader-icon {
-            font-size: 24px;
-            color: var(--text-primary);
-            animation: pulse 2s ease-in-out infinite;
-        }
-
+        /* Loader */
+        .loader-overlay { position: fixed; inset: 0; background: #fff; z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; }
+        .hex-spinner { width: 60px; height: 60px; position: relative; margin: 0 auto; }
+        .hex-spinner::before, .hex-spinner::after { content: ""; position: absolute; inset: 0; border-radius: 50%; border: 5px solid transparent; border-top-color: var(--primary); border-bottom-color: var(--secondary); animation: spin 1.5s linear infinite; filter: drop-shadow(0 0 10px var(--primary)); }
+        .hex-spinner::after { border: 5px solid transparent; border-left-color: #4cc9f0; border-right-color: #f72585; animation: spin-rev 1s linear infinite; inset: 10px; }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes spin-reverse { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
-        @keyframes pulse { 0%, 100% { transform: scale(0.9); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes spin-rev { 0% { transform: rotate(360deg); } 100% { transform: rotate(0deg); } }
+        .loader-text { color: var(--dark); margin-top: 20px; font-weight: 700; letter-spacing: 1px; font-size: 1rem; }
 
-        /* Loading Text Styles */
-        .loading-info {
-            margin-top: 30px;
-            text-align: center;
+        /* App Header */
+        .header { background: linear-gradient(160deg, #3f37c9, #4361ee); padding: 80px 25px 90px; border-radius: 0 0 40px 40px; color: white; box-shadow: 0 15px 30px rgba(67, 97, 238, 0.3); position: relative; }
+        .top-bar { display: flex; justify-content: space-between; align-items: center; position: relative; z-index: 2; }
+        .user-pill { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.15); padding: 6px 15px 6px 6px; border-radius: 50px; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); }
+        .user-pill img { width: 45px; height: 45px; border-radius: 50%; border: 2px solid var(--gold); object-fit: cover; }
+        .user-info h3 { font-size: 1rem; font-weight: 700; line-height: 1.1; } .user-info p { font-size: 0.75rem; opacity: 0.9; color: var(--gold); }
+        .support-btn { background: rgba(255,255,255,0.2); color: white; width: 42px; height: 42px; border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(5px); transition: 0.2s; }
+        .support-btn:active { transform: scale(0.9); }
+
+        /* Balance Card */
+        .balance-card { background: var(--surface); width: 88%; margin: -75px auto 25px; padding: 25px; border-radius: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.06); text-align: center; position: relative; z-index: 10; border-top: 5px solid var(--gold); }
+        .bal-title { font-size: 0.8rem; text-transform: uppercase; color: #8d99ae; font-weight: 700; letter-spacing: 1px; }
+        .bal-amt { font-size: 2.6rem; font-weight: 800; color: var(--primary); margin: 5px 0; }
+        .currency { color: var(--gold); font-size: 1.5rem; vertical-align: super; }
+        .stats { display: flex; justify-content: space-between; margin-top: 20px; padding-top: 20px; border-top: 2px dashed #edf2f4; }
+        .stat-box h4 { font-size: 1.1rem; color: var(--text); margin-bottom: 2px; } .stat-box p { font-size: 0.8rem; color: #6c757d; font-weight: 600; }
+
+        /* Page Structure */
+        .page { display: none; padding: 0 20px; animation: slideUp 0.4s; } .page.active { display: block; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        .sec-head { font-size: 1.1rem; font-weight: 700; margin: 25px 0 15px; color: var(--text); display: flex; align-items: center; gap: 10px; }
+        .sec-head i { color: var(--secondary); font-size: 1.3rem; width: 25px; text-align: center; }
+
+        /* --- PROFESSIONAL NOTICE BOARD --- */
+        #notice-board { 
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%); 
+            border-left: 5px solid var(--primary);
+            color: #1a237e; 
+            padding: 16px; 
+            margin: 0 0 25px 0; 
+            border-radius: 12px; 
+            font-size: 0.85rem; 
+            line-height: 1.6; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
         }
-
-        #loading-progress {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--primary-color);
-            font-variant-numeric: tabular-nums;
-            line-height: 1;
-            margin-bottom: 5px;
+        #notice-board strong { 
+            display: block; 
+            margin-bottom: 8px; 
+            color: var(--primary); 
+            text-transform: uppercase; 
+            font-size: 0.75rem; 
+            letter-spacing: 0.5px; 
+            font-weight: 800;
         }
+        #notice-board ul { list-style: none; padding-left: 0; }
+        #notice-board li { margin-bottom: 6px; display: flex; align-items: flex-start; font-weight: 500; }
+        #notice-board li::before { content: "•"; color: var(--secondary); font-weight: 900; margin-right: 8px; font-size: 1.2rem; line-height: 1.2rem; }
 
-        #loading-status {
-            font-size: 0.9rem;
-            color: var(--text-secondary);
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            min-height: 20px;
-        }
-
-        /* --- CHANNEL CHECK OVERLAY --- */
-        #channel-check-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(255, 255, 255, 0.98);
-            backdrop-filter: blur(12px);
-            z-index: 9000;
-            display: none; /* Hidden by default */
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-            text-align: center;
-            animation: fadeInOverlay 0.5s ease;
-        }
-
-        @keyframes fadeInOverlay { from { opacity: 0; } to { opacity: 1; } }
-
-        .channel-card {
-            background: var(--surface-color);
-            padding: 15px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow-md);
-            width: 100%;
-            max-width: 350px;
-            margin-bottom: 15px;
-            display: flex; align-items: center; justify-content: space-between;
-            border: 1px solid var(--border-color);
-            transition: transform 0.2s;
-        }
+        /* Ad Grid */
+        .ad-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .ad-card { background: var(--surface); padding: 20px; border-radius: 20px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.03); cursor: pointer; transition: 0.2s; border: 1px solid #f1f2f6; position: relative; overflow: hidden; }
+        .ad-card:active { transform: scale(0.94); border-color: var(--primary); } 
+        .ad-card.disabled { opacity: 0.6; filter: grayscale(1); pointer-events: none; }
+        .ad-card i { font-size: 2rem; color: var(--primary); margin-bottom: 10px; display: block; }
+        .ad-card h4 { font-size: 0.9rem; font-weight: 700; margin-bottom: 4px; }
+        .ad-card span { font-size: 0.7rem; color: white; background: var(--primary); padding: 3px 10px; border-radius: 50px; }
         
-        .channel-info { text-align: left; }
-        .channel-info h4 { font-size: 1rem; margin-bottom: 2px; color: var(--text-primary); }
-        .channel-info p { font-size: 0.8rem; color: var(--text-secondary); }
+        /* Tasks */
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+        .task-item { background: var(--surface); padding: 15px; border-radius: 18px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03); border-left: 5px solid var(--gold); transition: 0.2s; }
+        .task-left { display: flex; align-items: center; gap: 15px; } .task-icon { width: 45px; height: 45px; border-radius: 12px; object-fit: cover; }
+        .task-info h4 { font-size: 1rem; font-weight: 700; line-height: 1.2; } .task-info small { color: var(--secondary); font-weight: 700; font-size: 0.85rem; }
+        .btn-act { padding: 8px 16px; border-radius: 50px; border: none; font-weight: 700; font-size: 0.8rem; cursor: pointer; min-width: 85px; transition: 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1); white-space: nowrap; }
+        .btn-act:active { transform: scale(0.9); box-shadow: none; }
         
-        .join-btn {
-            background: var(--surface-color);
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            min-width: 80px;
+        .btn-start { background: var(--dark); color: white; } 
+        .btn-wait { background: #ffeaa7; color: #d63031; cursor: not-allowed; }
+        .btn-claim { background: linear-gradient(90deg, var(--success), #00b894); color: white; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 50% { transform: scale(1.05); } }
+
+        /* Welcome Bonus Box */
+        .welcome-bonus { background: linear-gradient(45deg, #ffd60a, #ff9e00); color: var(--dark); padding: 15px; border-radius: 15px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 10px 20px rgba(255, 214, 10, 0.2); }
+        .wb-text h4 { font-weight: 800; font-size: 1.1rem; } .wb-text p { font-size: 0.8rem; opacity: 0.8; }
+        .wb-icon { font-size: 2rem; opacity: 0.8; }
+
+        /* Referral Stats Box */
+        .ref-stats-box {
+            display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 20px;
         }
+        .ref-stat-card {
+            background: var(--surface); padding: 15px 10px; border-radius: 15px; text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #f0f0f0;
+        }
+        .ref-stat-card h5 { font-size: 0.9rem; color: var(--primary); font-weight: 800; margin-bottom: 5px; }
+        .ref-stat-card small { font-size: 0.7rem; color: #8d99ae; font-weight: 600; text-transform: uppercase; }
+
+        /* Leaderboard & Podium */
+        .podium { display: flex; justify-content: center; align-items: flex-end; gap: 10px; margin: 30px 0 40px; padding: 0 10px; }
+        .podium-item { text-align: center; position: relative; width: 33%; }
+        .rank-1 { order: 2; transform: scale(1.1); z-index: 2; margin-bottom: 10px; } .rank-1 img { border-color: var(--gold); box-shadow: 0 0 20px rgba(255, 215, 0, 0.4); } .rank-1 .crown { color: var(--gold); top: -35px; font-size: 2rem; }
+        .rank-2 { order: 1; } .rank-2 img { border-color: var(--silver); } .rank-2 .crown { color: var(--silver); }
+        .rank-3 { order: 3; } .rank-3 img { border-color: var(--bronze); } .rank-3 .crown { color: var(--bronze); }
+        .podium-img { width: 60px; height: 60px; border-radius: 50%; border: 3px solid white; object-fit: cover; background: #fff; }
+        .crown { position: absolute; top: -25px; left: 50%; transform: translateX(-50%); font-size: 1.4rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .podium-name { font-size: 0.8rem; font-weight: 700; margin-top: 5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
+        .podium-score { font-size: 0.75rem; color: white; font-weight: 700; background: var(--primary); padding: 2px 10px; border-radius: 10px; display: inline-block; margin-top: 2px; }
+        .lb-list { background: var(--surface); border-radius: 20px; padding: 5px 15px; }
+        .lb-item { display: flex; align-items: center; padding: 12px 0; border-bottom: 1px solid #f1f2f6; } .lb-item:last-child { border-bottom: none; }
+        .lb-rank { font-weight: 800; width: 30px; color: #b2bec3; font-size: 1rem; } .lb-img { width: 38px; height: 38px; border-radius: 50%; margin-right: 15px; object-fit: cover; }
+        .lb-name { font-weight: 600; font-size: 0.95rem; flex: 1; } 
+        .lb-vals { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+        .lb-val { font-weight: 700; color: var(--primary); font-size: 0.9rem; }
+        .lb-bal { font-size: 0.7rem; color: #888; font-weight: 500; }
         
-        .join-btn:active { transform: scale(0.95); }
-        .join-btn.verified { 
-            background: var(--success); 
-            color: white; 
-            border-color: var(--success); 
-            cursor: default; 
-            pointer-events: none;
-        }
-
-        /* --- APP LAYOUT --- */
-        #app { max-width: 480px; margin: 0 auto; padding-bottom: 80px; position: relative; }
+        /* Profile & Withdraw */
+        .box { background: var(--surface); padding: 20px; border-radius: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); }
+        .input-wrap { position: relative; margin-bottom: 15px; } .input-wrap i { position: absolute; top: 50%; transform: translateY(-50%); left: 15px; color: var(--primary); }
+        .inp { width: 100%; padding: 14px 14px 14px 45px; border: 2px solid #f1f2f6; border-radius: 12px; outline: none; font-weight: 600; background: #f8f9fa; transition: 0.2s; } .inp:focus { border-color: var(--secondary); background: #fff; }
+        .btn-main { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 1rem; box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); transition: 0.2s; }
+        .btn-main:active { transform: scale(0.96); box-shadow: none; }
+        .hist-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: var(--surface); border-radius: 15px; margin-bottom: 10px; border-left: 5px solid #eee; }
+        .hist-item.Pending { border-color: var(--gold); } .hist-item.Approved { border-color: var(--success); } .hist-item.Rejected { border-color: var(--danger); }
+        .status-badge { font-size:0.7rem; padding:4px 8px; border-radius:5px; font-weight:700; text-transform:uppercase; }
+        .Pending .status-badge { color:var(--gold); background:rgba(255,215,0,0.1); } .Approved .status-badge { color:var(--success); background:rgba(6,214,160,0.1); } .Rejected .status-badge { color:var(--danger); background:rgba(239,35,60,0.1); }
+        .invite-box { display: flex; gap: 10px; margin-top: 10px; }
+        .btn-share { background: var(--primary); color: white; flex: 1; border: none; padding: 12px; border-radius: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s;} .btn-share:active { transform: scale(0.95); }
+        .btn-copy { background: var(--secondary); color: white; width: 50px; border: none; border-radius: 12px; cursor: pointer; font-size: 1.2rem; transition: 0.2s;} .btn-copy:active { transform: scale(0.9); }
         
-        .page { display: none; padding: 15px; animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
-        .page.active { display: block; }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* Profile Header */
-        .profile-header {
-            background: var(--surface-color);
-            padding: 25px 20px;
-            border-radius: 0 0 30px 30px;
-            text-align: center;
-            box-shadow: var(--shadow-md);
-            margin-bottom: 25px;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        /* Decorative bg element */
-        .profile-header::before {
-            content: ''; position: absolute; top: -50px; left: -50px; width: 150px; height: 150px;
-            background: rgba(211, 47, 47, 0.05); border-radius: 50%; z-index: 0;
-        }
-
-        #user-photo {
-            width: 95px; height: 95px; border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
-            object-fit: cover; margin-bottom: 15px; position: relative; z-index: 1;
-        }
-        
-        #user-name { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; position: relative; z-index: 1; }
-        #user-balance-container { font-size: 0.95rem; color: var(--text-secondary); font-weight: 500; background: rgba(0,0,0,0.04); display: inline-block; padding: 6px 20px; border-radius: 25px; position: relative; z-index: 1; }
-        #user-balance { color: var(--primary-color); font-weight: 800; font-size: 1.3rem; }
-
-        /* Stats Grid */
-        .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-        .stat-card {
-            background: var(--surface-color); padding: 18px; border-radius: var(--radius);
-            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-            text-align: center; transition: transform 0.2s;
-        }
-        .stat-card:active { transform: scale(0.98); }
-        .stat-card h3 { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
-        .stat-card p { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); }
-
-        /* Chart */
-        .chart-container { background: var(--surface-color); padding: 20px; border-radius: var(--radius); margin-top: 20px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color); }
-        .chart { display: flex; justify-content: space-between; align-items: flex-end; height: 130px; padding-top: 15px; border-left: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); }
-        .bar { width: 10%; background: var(--primary-gradient); border-radius: 4px 4px 0 0; position: relative; transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1); min-height: 4px; cursor: pointer; }
-        .bar:hover { opacity: 0.9; transform: scaleY(1.05); transform-origin: bottom; }
-        .bar .tooltip {
-            position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
-            background: #1F2937; color: #fff; padding: 4px 8px; border-radius: 6px;
-            font-size: 0.7rem; white-space: nowrap; opacity: 0; pointer-events: none; transition: opacity 0.2s; font-weight: 600;
-        }
-        .bar:hover .tooltip { opacity: 1; top: -35px; }
-        .chart-labels { display: flex; justify-content: space-between; margin-top: 12px; font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; }
-
-        /* Lists (History, Leaderboard) */
-        .history-item, .leaderboard-item {
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--surface-color); padding: 16px; border-radius: var(--radius);
-            margin-bottom: 12px; box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-        }
-        .history-status { padding: 5px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 700; color: #fff; text-transform: capitalize; letter-spacing: 0.3px; }
-        .status-completed { background: var(--success); } .status-pending { background: var(--pending); } .status-rejected { background: var(--danger); }
-
-        /* Tasks & Actions */
-        .task-container {
-            background: var(--surface-color); padding: 16px; border-radius: var(--radius);
-            margin-bottom: 15px; display: flex; align-items: center; gap: 15px;
-            box-shadow: var(--shadow-sm); border: 1px solid var(--border-color);
-        }
-        .task-icon-img { width: 50px; height: 50px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border-color); }
-        .task-info { flex: 1; }
-        .task-info h3 { font-size: 1rem; font-weight: 600; color: var(--text-primary); }
-        .task-info p { font-size: 0.8rem; color: var(--text-secondary); margin-top: 2px; }
-        
-        .action-btn {
-            background: var(--primary-gradient); color: white; border: none; padding: 11px 20px;
-            border-radius: 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(211, 47, 47, 0.25); transition: transform 0.1s, box-shadow 0.2s;
-            white-space: nowrap; display: flex; align-items: center; justify-content: center; gap: 6px;
-        }
-        .action-btn:active { transform: scale(0.96); box-shadow: none; }
-        .action-btn:disabled { background: #E5E7EB; box-shadow: none; cursor: not-allowed; color: #9CA3AF; }
-
-        /* Forms */
-        .form-group { margin-bottom: 18px; width: 100%; }
-        .form-group label { display: block; margin-bottom: 8px; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
-        input, select {
-            width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border-color);
-            background: #F9FAFB; font-family: var(--font-family); font-size: 0.95rem;
-            transition: all 0.2s; color: var(--text-primary);
-        }
-        input:focus, select:focus { border-color: var(--primary-color); background: #fff; box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1); }
-
-        /* Progress Bar */
-        .progress-container { margin-bottom: 25px; background: var(--surface-color); padding: 18px; border-radius: var(--radius); border: 1px solid var(--border-color); box-shadow: var(--shadow-sm); }
-        .progress-bar-bg { width: 100%; height: 10px; background: #F3F4F6; border-radius: 5px; overflow: hidden; margin-top: 10px; }
-        .progress-bar-fg { height: 100%; background: var(--primary-gradient); width: 0%; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1); }
-
-        /* Popup */
-        .popup-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: none; justify-content: center; align-items: center; z-index: 10000; }
-        .popup-content { background: var(--surface-color); padding: 35px; border-radius: 24px; text-align: center; max-width: 85%; width: 340px; box-shadow: var(--shadow-lg); animation: popIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-
         /* Navigation */
-        .bottom-nav {
-            position: fixed; bottom: 0; left: 0; right: 0; max-width: 480px; margin: 0 auto;
-            background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border-top: 1px solid var(--border-color);
-            display: flex; justify-content: space-around; padding: 10px 0 20px 0; z-index: 1000;
-            box-shadow: 0 -5px 20px rgba(0,0,0,0.03);
-        }
-        .nav-btn { background: none; border: none; display: flex; flex-direction: column; align-items: center; color: #9CA3AF; font-size: 0.7rem; font-weight: 600; cursor: pointer; padding: 5px; transition: color 0.3s; }
-        .nav-btn i { font-size: 1.4rem; margin-bottom: 4px; transition: transform 0.2s; }
-        .nav-btn.active { color: var(--primary-color); }
-        .nav-btn.active i { transform: translateY(-2px); }
-
-        /* Leaderboard Toggle */
-        .leaderboard-toggle { display: flex; background: #F3F4F6; padding: 5px; border-radius: 12px; margin-bottom: 25px; }
-        .toggle-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 8px; font-size: 0.9rem; font-weight: 600; color: var(--text-secondary); cursor: pointer; transition: all 0.2s; }
-        .toggle-btn.active { background: var(--surface-color); color: var(--primary-color); box-shadow: var(--shadow-sm); }
+        .nav { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); width: 90%; max-width: 420px; background: #1b263b; display: flex; justify-content: space-around; padding: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; }
+        .nav i { font-size: 1.4rem; color: rgba(255,255,255,0.4); cursor: pointer; transition: 0.3s; position: relative;}
+        .nav i.active { color: var(--gold); transform: translateY(-5px); text-shadow: 0 0 15px rgba(255, 214, 10, 0.5); }
+        
+        .toast { position: fixed; top: 40px; left: 50%; transform: translateX(-50%); background: #1b263b; color: white; padding: 12px 25px; border-radius: 30px; font-size: 0.9rem; opacity: 0; transition: 0.3s; z-index: 10000; font-weight: 600; pointer-events: none; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 80%; text-align: center; }
+        .toast.show { opacity: 1; top: 50px; }
     </style>
 </head>
 <body>
 
-    <!-- Advanced Loader -->
-    <div id="app-loader">
-        <div class="loader-container">
-            <div class="loader-ring"></div>
-            <div class="loader-ring-inner"></div>
-            <i class="fas fa-gem loader-icon"></i>
-        </div>
-        <div class="loading-info">
-            <p id="loading-progress">0%</p>
-            <p id="loading-status">Initializing...</p>
-        </div>
-    </div>
+<!-- BAN SCREEN -->
+<div id="ban-screen">
+    <i class="fas fa-ban ban-icon"></i>
+    <h2>Account Banned</h2>
+    <p style="margin-top:10px; opacity:0.8;">You have violated our terms.</p>
+    <p style="font-size:0.9rem; margin-top:5px; color: #ff9e00;">Reason: Multiple Accounts (>3) on same device.</p>
+</div>
 
-    <!-- Channel Check Overlay -->
-    <div id="channel-check-overlay">
-        <div style="margin-bottom: 30px;">
-            <div style="width: 80px; height: 80px; background: rgba(211, 47, 47, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <i class="fas fa-bullhorn" style="font-size: 2rem; color: var(--primary-color);"></i>
-            </div>
-            <h2 style="margin-bottom: 10px; font-size: 1.5rem;">Verification Required</h2>
-            <p style="color: var(--text-secondary); font-size: 0.9rem; line-height: 1.5;">Please join all channels below to verify your access and continue using Luxora Bd.</p>
-        </div>
-        <div id="channel-list-container">
+<!-- FORCE JOIN SCREEN -->
+<div id="force-join-screen">
+    <div class="gate-card">
+        <div class="gate-title">Setup Required 🛠️</div>
+        <p class="gate-desc">Join all 5 official channels to activate your account and start earning.</p>
+        
+        <div class="channel-list" id="channel-list-container">
             <!-- Channels injected by JS -->
         </div>
-    </div>
 
-    <!-- Popup -->
-    <div id="popup" class="popup-overlay">
-        <div class="popup-content">
-            <div id="popup-body"></div>
+        <button id="enter-btn" class="enter-btn" onclick="enterApp()">Enter App 🚀</button>
+    </div>
+</div>
+
+<!-- LOADER -->
+<div id="loader" class="loader-overlay">
+    <div class="hex-spinner"></div>
+    <p class="loader-text">Loading Data...</p>
+</div>
+<div id="toast" class="toast">Alert</div>
+
+<!-- MAIN APP -->
+<div id="app">
+    <div class="header">
+        <div class="top-bar">
+            <div class="user-pill">
+                <img id="u-img" src="https://via.placeholder.com/45">
+                <div class="user-info"><h3 id="u-name">...</h3><p id="u-id">...</p></div>
+            </div>
+            <button class="support-btn" onclick="playSfx('click'); openSupport()"><i class="fas fa-headset"></i></button>
         </div>
     </div>
 
-    <!-- Main App -->
-    <div id="app" style="display: none;">
-        <header class="profile-header">
-            <img id="user-photo" src="https://via.placeholder.com/95" alt="User">
-            <h1 id="user-name">Loading...</h1>
-            <div id="user-balance-container">Main Balance: <span id="user-balance">0.00</span> TK</div>
-        </header>
-
-        <main id="main-content">
-            <!-- HOME PAGE -->
-            <div id="home-page" class="page active">
-                <div class="stats-grid">
-                    <div class="stat-card"><h3>Today's Ads</h3><p id="daily-ads-watched">0 / 0</p></div>
-                    <div class="stat-card"><h3>Total Referrals</h3><p id="referral-count">0</p></div>
-                    <div class="stat-card"><h3>Total Ads</h3><p id="total-ads-watched">0</p></div>
-                    <div class="stat-card"><h3>Total Income</h3><p id="total-earned">0.00</p></div>
-                </div>
-
-                <div class="chart-container">
-                    <h3 style="margin-bottom: 20px; font-size: 0.9rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px;">Last 7 Days Earnings</h3>
-                    <div id="earnings-chart" class="chart"></div>
-                    <div id="earnings-chart-labels" class="chart-labels"></div>
-                </div>
-
-                <div id="dynamic-links-container" style="margin-top: 25px;"></div>
-            </div>
-
-            <!-- TASKS PAGE -->
-            <div id="tasks-page" class="page">
-                <div class="task-container" style="flex-direction: column; align-items: stretch; background: linear-gradient(145deg, #ffffff, #f9fafb);">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-                        <h3 style="font-size: 1.1rem; font-weight: 700;">Earning Wallet</h3>
-                        <span style="font-size: 1.6rem; font-weight: 800; color: var(--primary-color);"><span id="earning-wallet-balance">0.00</span> <small style="font-size: 0.9rem; color: var(--text-secondary); font-weight: 500;">TK</small></span>
-                    </div>
-                    <div style="margin-bottom: 15px; font-size: 0.85rem; color: #B45309; background: #FFFBEB; padding: 12px; border-radius: 8px; border: 1px solid #FCD34D; line-height: 1.4;">
-                        <i class="fas fa-info-circle"></i> Minimum <strong>10 TK</strong> required to transfer to Main Balance.
-                    </div>
-                    <button id="move-to-balance-btn" class="action-btn" style="width: 100%; justify-content: center;" disabled>Transfer to Main Balance</button>
-                </div>
-
-                <div id="ad-progress-container" class="progress-container"></div>
-                
-                <h3 style="margin: 25px 0 15px; font-size: 1.2rem; border-left: 4px solid var(--primary-color); padding-left: 12px; font-weight: 700;">Daily Tasks</h3>
-                <div id="ad-task-container"></div>
-
-                <h3 style="margin: 35px 0 15px; font-size: 1.2rem; border-left: 4px solid var(--secondary-color); padding-left: 12px; font-weight: 700;">Bonus Tasks</h3>
-                <div id="dynamic-tasks-container"></div>
-            </div>
-
-            <!-- LEADERBOARD PAGE -->
-            <div id="leaderboard-page" class="page">
-                <h2 style="margin-bottom: 25px; font-weight: 800;">Leaderboard</h2>
-                <div class="leaderboard-toggle">
-                    <button class="toggle-btn active" data-board="referral">Top Referrers</button>
-                    <button class="toggle-btn" data-board="earning">Top Earners</button>
-                </div>
-                <div id="referral-board"><ul class="leaderboard-list" id="referral-leaderboard-list" style="list-style: none;"></ul></div>
-                <div id="earning-board" style="display: none;"><ul class="leaderboard-list" id="earning-leaderboard-list" style="list-style: none;"></ul></div>
-            </div>
-
-            <!-- PROFILE PAGE -->
-            <div id="profile-page" class="page">
-                <div id="referral-section"></div>
-                <div id="withdraw-section" style="margin-top: 30px;"></div>
-                <div id="withdrawal-history-section" style="margin-top: 35px;">
-                    <h3 style="margin-bottom: 18px; border-left: 4px solid var(--text-secondary); padding-left: 12px; font-weight: 700;">Withdrawal History</h3>
-                    <div id="withdrawal-history-list"></div>
-                </div>
-            </div>
-        </main>
-
-        <nav class="bottom-nav">
-            <button class="nav-btn active" data-page="home-page"><i class="fas fa-home"></i><span>Home</span></button>
-            <button class="nav-btn" data-page="tasks-page"><i class="fas fa-tasks"></i><span>Tasks</span></button>
-            <button class="nav-btn" data-page="leaderboard-page"><i class="fas fa-trophy"></i><span>Ranks</span></button>
-            <button class="nav-btn" data-page="profile-page"><i class="fas fa-user-alt"></i><span>Profile</span></button>
-        </nav>
+    <div class="balance-card">
+        <div class="bal-title">Total Balance</div>
+        <div class="bal-amt"><span id="u-bal">0.00</span> <span class="currency">Tk</span></div>
+        <div class="stats">
+            <div class="stat-box"><h4 id="u-earn">0.00</h4><p>Earned 💰</p></div>
+            <div class="stat-box"><h4 id="u-ref">0</h4><p>Referrals 👥</p></div>
+        </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <div id="p-home" class="page active">
+        <!-- Professional Notice Board (Only on Home Page) -->
+        <div id="notice-board">
+            <strong><i class="fas fa-bullhorn"></i> Official Announcements</strong>
+            <ul id="notice-list">
+                <li>Minimum 10 referrals required to unlock withdrawal.</li>
+                <li>Must watch minimum ads & complete tasks to withdraw.</li>
+                <li>Payments are processed within the timeframe shown in Profile.</li>
+                <li>Stay active in official channels to avoid ban.</li>
+            </ul>
+        </div>
+
+        <!-- Welcome Bonus -->
+        <div class="welcome-bonus">
+            <div class="wb-text">
+                <h4>Welcome Bonus</h4>
+                <p>Claim your free joining reward!</p>
+            </div>
+            <i class="fas fa-gift wb-icon"></i>
+        </div>
+
+        <div class="sec-head"><i class="fas fa-play-circle"></i> Video Ads</div>
+        <div id="ad-area" class="ad-grid"></div>
+        
+        <div class="sec-head"><i class="fas fa-tasks"></i> Special Tasks</div>
+        <div id="task-area" class="task-list"></div>
+    </div>
+
+    <div id="p-refer" class="page">
+        <div class="sec-head"><i class="fas fa-users"></i> Refer & Earn</div>
+        
+        <!-- NEW STATS SECTION -->
+        <div class="ref-stats-box">
+            <div class="ref-stat-card">
+                <h5 id="stat-ref-inc">0.00 Tk</h5>
+                <small>Ref Income</small>
+            </div>
+            <div class="ref-stat-card">
+                <h5 id="stat-total-refs">0</h5>
+                <small>Total Refs</small>
+            </div>
+            <div class="ref-stat-card">
+                <h5 id="stat-total-ads">0</h5>
+                <small>Total Ads</small>
+            </div>
+        </div>
+
+        <div class="box" style="text-align: center;">
+            <p style="font-weight: 600; color: var(--text); margin-bottom: 12px; font-size: 0.95rem;">
+                Invite friends! Earn <span id="ref-reward-amt" style="color:var(--primary); font-weight:800;">0.50</span> <span class="currency">Tk</span> per referral! 🚀
+            </p>
+            <input id="ref-link" class="inp" readonly style="text-align:center; background:#fff; margin-bottom: 0;">
+            <div class="invite-box">
+                <button onclick="playSfx('click'); shareTg()" class="btn-share"><i class="fab fa-telegram-plane"></i> Share</button>
+                <button onclick="playSfx('click'); copyRef()" class="btn-copy"><i class="far fa-copy"></i></button>
+            </div>
+        </div>
+        <div class="sec-head"><i class="fas fa-trophy"></i> Milestones</div>
+        <div id="milestone-area" class="task-list"></div>
+    </div>
+
+    <div id="p-leader" class="page">
+        <h3 style="text-align:center; margin-top:20px; color:var(--text);"><i class="fas fa-crown" style="color:var(--gold)"></i> Leaderboard</h3>
+        <p style="text-align:center; font-size:0.8rem; color:#aaa; margin-bottom:20px;">Top 20 Earners</p>
+        <div id="podium-area" class="podium"></div>
+        <div id="lb-area" class="lb-list"></div>
+    </div>
+
+    <div id="p-profile" class="page">
+        <div class="sec-head"><i class="fas fa-wallet"></i> Withdraw Funds</div>
+        
+        <!-- Requirements & Processing Time Display -->
+        <div id="w-req-msg" style="font-size: 0.8rem; color: var(--dark); font-weight: 600; text-align: center; margin-bottom: 15px; background: #e3f2fd; padding: 12px; border-radius: 12px; border: 1px solid #bbdefb;">
+            <i class="fas fa-info-circle"></i> <span id="proc-time-text">Processing: 48-72 Hours</span><br>
+            <span style="font-size:0.75rem; color:#555;" id="w-rules-text">Min 10 Refs, 20 Ads, 5 Tasks required.</span>
+        </div>
+
+        <div class="box">
+            <div class="input-wrap"><i class="fas fa-university"></i>
+                <select id="w-method" class="inp">
+                    <option value="bKash">bKash</option>
+                    <option value="Binance">Binance</option>
+                    <option value="USDT">USDT (Bep20)</option>
+                </select>
+            </div>
+            <div class="input-wrap"><i class="fas fa-id-card"></i><input id="w-acc" class="inp" placeholder="Wallet Number / Address"></div>
+            <div class="input-wrap"><i class="fas fa-coins"></i><input id="w-amt" class="inp" type="number" placeholder="Amount"></div>
+            <button onclick="playSfx('click'); requestWithdraw()" class="btn-main">Request Withdrawal</button>
+        </div>
+        
+        <!-- User Details for Withdrawal Check -->
+        <div style="margin-top: 20px;">
+            <p style="font-size:0.8rem; color:#888; margin-bottom:5px;">Your Current Stats:</p>
+            <div style="display:flex; justify-content:space-between; font-size:0.9rem; font-weight:600; background:white; padding:15px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.03);">
+                <span>Referrals: <b id="chk-refs">0</b></span>
+                <span>Ads: <b id="chk-ads">0</b></span>
+                <span>Tasks: <b id="chk-tasks">0</b></span>
+            </div>
+        </div>
+
+        <div class="sec-head"><i class="fas fa-history"></i> Transactions</div>
+        <div id="hist-area" class="task-list"></div>
+    </div>
+</div>
+
+<div class="nav">
+    <i class="fas fa-home active" onclick="playSfx('click'); nav('p-home', this)"></i>
+    <i class="fas fa-users" onclick="playSfx('click'); nav('p-refer', this)"></i>
+    <i class="fas fa-crown" onclick="playSfx('click'); nav('p-leader', this)"></i>
+    <i class="fas fa-user" onclick="playSfx('click'); nav('p-profile', this)"></i>
+</div>
+
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<script>
+    // CONFIGURATION
+    const firebaseConfig = {
+        apiKey: "AIzaSyA_mAo05cqVfFpTZQ8zC7YPB7jqaVgWGww",
+        authDomain: "cashw12.firebaseapp.com",
+        databaseURL: "https://cashw12-default-rtdb.firebaseio.com",
+        projectId: "cashw12",
+        storageBucket: "cashw12.firebasestorage.app",
+        messagingSenderId: "1081137223329",
+        appId: "1:1081137223329:web:64e9c756edbedf7b9d02e0"
+    };
+
+    // === BOT USERNAME LINK ===
+    const DEFAULT_BOT_LINK = "https://t.me/TaskHiveEarnCashProBot/app?startapp="; 
     
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const tg = window.Telegram.WebApp;
+    // FORCE JOIN CHANNELS LIST
+    const channelsToJoin = [
+        { name: "Official Channel 1", link: "https://t.me/TaskHiveEarnOfficial" },
+        { name: "Official Channel 2", link: "https://t.me/Crypto_Bd25" },
+        { name: "Official Channel 3", link: "https://t.me/All_PaymentBot25" },
+        { name: "Official Channel 4", link: "https://t.me/Game_Ads_Crypto" },
+        { name: "Official Channel 5", link: "https://t.me/Verify_Offered" }
+    ];
+
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const tg = window.Telegram.WebApp;
+    tg.ready(); tg.expand();
+
+    let webTasks = {};
+    let dynamicMilestones = [];
+    let tgUser = tg.initDataUnsafe?.user || { id: "123456", first_name: "Demo User", photo_url: "" };
+    
+    // DEVICE FINGERPRINTING
+    let deviceId = localStorage.getItem('app_device_id');
+    if (!deviceId) {
+        deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('app_device_id', deviceId);
+    }
+
+    // Default Settings (Will be overridden by DB if exists)
+    let appState = { 
+        user: { 
+            id: tgUser.id, firstName: tgUser.first_name || "User", balance: 0, totalEarned: 0, referrals: 0, referralIncome: 0, tasksCompleted: 0, dailyAds: {}, taskHistory: {}, claimedMilestones: {}, channelsJoined: false, isBanned: false, welcomeBonusClaimed: false 
+        },
+        settings: { 
+            currencySymbol: "Tk", 
+            minWithdraw: 10, 
+            perRefReward: 0.50, 
+            adReward: 0.05, 
+            botLink: DEFAULT_BOT_LINK, 
+            minRefWithdraw: 10, // Fixed 10 as requested
+            minAdWithdraw: 20, 
+            minTaskWithdraw: 5,
+            processingTime: "48-72 Hours"
+        },
+        history: [], 
+        leaderboard: [],
+        adsList: [] // Stores ads from Admin Panel
+    };
+    
+    let adsgramController = null;
+    let verifiedChannelsCount = 0;
+
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playSfx(type) {
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        const osc = audioCtx.createOscillator(); const gain = audioCtx.createGain();
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        const now = audioCtx.currentTime;
+        if (type === 'click') {
+            osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(300, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+        } else if (type === 'coin') {
+            osc.frequency.setValueAtTime(1000, now); osc.frequency.setValueAtTime(1500, now + 0.1);
+            gain.gain.setValueAtTime(0.2, now); gain.gain.exponentialRampToValueAtTime(0.01, now + 0.4);
+        }
+        osc.start(now); osc.stop(now + 0.4);
+    }
+
+    // GATEKEEPER LOGIC
+    function initGatekeeper() {
+        const container = document.getElementById('channel-list-container');
+        container.innerHTML = '';
         
-        // Firebase Configuration
-        const firebaseConfig = { apiKey: "AIzaSyCNMwLfpD2N4gXkQOKM0sqSjcM1hdR7oE4", authDomain: "luxora-bd.firebaseapp.com", projectId: "luxora-bd", storageBucket: "luxora-bd.firebasestorage.app", messagingSenderId: "502378318531", appId: "1:502378318531:web:edf18ae4c6e931322df076" };
-
-        let appConfig = {}; let userState = {}; let tgUser = {}; let earningWalletBalance = 0;
-        let leaderboardData = { referral: [], earning: [] };
-        let userTransactions = [];
-        let joinedChannels = { ch1: false, ch2: false, ch3: false };
-        let isChannelsVerified = false; // Global flag for verification status
-
-        // Define Required Channels
-        const defaultChannels = [
-            { id: 'ch1', link: 'https://t.me/Luxorabdchatgroup', name: 'Luxora Official' },
-            { id: 'ch2', link: 'https://t.me/bdfreesitesseo', name: 'Luxora Updates' },
-            { id: 'ch3', link: 'https://t.me/+e-i_yS2tTiUzZWFl', name: 'Luxora Community' }
-        ];
-
-        const popup = document.getElementById('popup');
-        const popupBody = document.getElementById('popup-body');
-        const loadingProgress = document.getElementById('loading-progress');
-        const loadingStatus = document.getElementById('loading-status');
-        const channelOverlay = document.getElementById('channel-check-overlay');
-
-        const showPopup = (content) => { popupBody.innerHTML = content; popup.style.display = 'flex'; };
-        const closePopup = () => { popup.style.display = 'none'; };
-        
-        // Updated Loader Function with Text
-        const updateProgress = (percentage, statusText) => { 
-            loadingProgress.textContent = `${percentage}%`; 
-            if(statusText) loadingStatus.textContent = statusText;
-        };
-
-        const loadAdSdk = (zoneId) => {
-            if (!zoneId) return;
-            if (document.querySelector(`script[data-zone='${zoneId}']`)) return;
-            const script = document.createElement('script');
-            script.src = `//libtl.com/sdk.js`;
-            script.setAttribute('data-zone', zoneId);
-            script.setAttribute('data-sdk', `show_${zoneId}`);
-            script.async = true;
-            document.body.appendChild(script);
-        };
-
-        const initApp = async () => {
-            tg.ready(); tg.expand();
-            tgUser = tg.initDataUnsafe.user;
-            if (!tgUser || !tgUser.id) { tg.showAlert("User data not found.", () => tg.close()); return; }
-
-            try {
-                updateProgress(10, "Connecting to Server..."); 
-                firebase.initializeApp(firebaseConfig); 
-                const db = firebase.database();
-                updateProgress(20, "Fetching Configuration...");
-                
-                const configSnapshot = await db.ref('config').once('value');
-                appConfig = configSnapshot.val() || {};
-                
-                // Setup Channel List (only if needed, but do it early)
-                const channelsToJoin = appConfig.channels || defaultChannels;
-                renderChannelOverlay(channelsToJoin);
-
-                updateProgress(40, "Syncing User Data...");
-                await loadUserData(db); 
-                
-                // CRITICAL CHECK: One-time Verification
-                // If user has already joined channels in DB, we skip the overlay later.
-                if (userState.channelsJoined) {
-                    isChannelsVerified = true;
-                }
-
-                updateProgress(60, "Loading Leaderboard...");
-                const referralBoardPromise = db.ref('users').orderByChild('referrals').limitToLast(10).once('value');
-                const earningBoardPromise = db.ref('users').orderByChild('totalEarned').limitToLast(10).once('value');
-                const historyPromise = loadTransactionHistory(db);
-
-                const [referralBoardSnap, earningBoardSnap] = await Promise.all([referralBoardPromise, earningBoardPromise, historyPromise]);
-                updateProgress(80, "Rendering Interface...");
-
-                referralBoardSnap.forEach(child => { leaderboardData.referral.push(child.val()); });
-                earningBoardSnap.forEach(child => { leaderboardData.earning.push(child.val()); });
-                leaderboardData.referral.reverse(); leaderboardData.earning.reverse();
-                
-                loadAdSdk(appConfig.adZoneId);
-                earningWalletBalance = parseFloat(localStorage.getItem(`earningWallet_${tgUser.id}`) || '0');
-                
-                renderUI(); setupNavigation(); setupEventListeners();
-                updateProgress(100, "Ready");
-
+        channelsToJoin.forEach((ch, index) => {
+            const btn = document.createElement('a');
+            btn.className = 'channel-btn';
+            btn.href = ch.link;
+            btn.target = '_blank';
+            btn.id = `ch-btn-${index}`;
+            btn.innerHTML = `<span>${index + 1}. ${ch.name}</span> <i class="fab fa-telegram"></i>`;
+            btn.onclick = (e) => {
+                e.preventDefault();
+                tg.openLink(ch.link);
+                playSfx('click');
                 setTimeout(() => {
-                    const loader = document.getElementById('app-loader');
-                    loader.style.opacity = '0';
-                    setTimeout(() => { loader.style.display = 'none'; }, 600);
-
-                    document.getElementById('app').style.display = 'block';
-
-                    // ONE-TIME CHECK LOGIC
-                    if (!isChannelsVerified) {
-                        channelOverlay.style.display = 'flex';
-                    }
-                    
-                }, 800);
-            } catch (error) { 
-                console.error("Initialization failed:", error); 
-                loadingStatus.textContent = "Error Loading App";
-                loadingStatus.style.color = "var(--danger)";
-                tg.showAlert("Failed to load app data. Please check your internet connection."); 
-            }
-        };
-
-        const loadUserData = async (db) => {
-            const userRef = db.ref(`users/${tgUser.id}`);
-            const snapshot = await userRef.once('value');
-            let userData = snapshot.val();
-            
-            if (!userData) {
-                const startParam = tg.initDataUnsafe.start_param;
-                const referralId = (startParam && !isNaN(startParam)) ? startParam : null;
-                
-                userData = { 
-                    id: tgUser.id, firstName: tgUser.first_name || '', lastName: tgUser.last_name || '', 
-                    username: tgUser.username || '', photoUrl: tgUser.photo_url || '', 
-                    balance: 0, referrals: 0, referredBy: referralId, totalEarned: 0, 
-                    lifetimeAdCount: 0, lastAdWatchDate: '1970-01-01', dailyAdCount: 0, 
-                    breakUntil: 0, completedTasks: {}, welcomed: false,
-                    channelsJoined: false // Default false for new users
-                };
-                await userRef.set(userData);
-                
-                if (referralId && referralId != tgUser.id) {
-                    const referrerRef = db.ref(`users/${referralId}`);
-                    const bonusAmount = parseFloat(appConfig.referralBonus || 0);
-                    if (bonusAmount > 0) {
-                        await referrerRef.transaction(currentData => {
-                            if (currentData) {
-                                currentData.balance = (currentData.balance || 0) + bonusAmount;
-                                currentData.referrals = (currentData.referrals || 0) + 1;
-                            }
-                            return currentData;
-                        });
-                    } else {
-                        await referrerRef.child('referrals').set(firebase.database.ServerValue.increment(1));
-                    }
-                }
-            }
-            
-            const today = new Date().toISOString().slice(0, 10);
-            if (userData.lastAdWatchDate !== today) {
-                userData.dailyAdCount = 0; userData.lastAdWatchDate = today;
-                await userRef.update({ dailyAdCount: 0, lastAdWatchDate: today });
-            }
-            userState = userData;
-        };
-        
-        const loadTransactionHistory = async (db) => {
-            userTransactions = []; 
-            const statuses = ['pending', 'completed', 'rejected'];
-            const historyPromises = statuses.map(status => db.ref(`withdrawals/${status}`).orderByChild('userId').equalTo(tgUser.id).once('value'));
-            const snapshots = await Promise.all(historyPromises);
-            snapshots.forEach(snap => { snap.forEach(childSnap => { userTransactions.push(childSnap.val()); }); });
-            userTransactions.sort((a, b) => b.timestamp - a.timestamp);
-        };
-        
-        const renderUI = () => {
-            document.getElementById('user-photo').src = userState.photoUrl || 'https://via.placeholder.com/95';
-            document.getElementById('user-name').textContent = `${userState.firstName} ${userState.lastName}`;
-            document.getElementById('user-balance').textContent = (userState.balance || 0).toFixed(2);
-            document.getElementById('daily-ads-watched').textContent = `${userState.dailyAdCount || 0} / ${appConfig.dailyAdLimit || 0}`;
-            document.getElementById('referral-count').textContent = userState.referrals || 0;
-            document.getElementById('total-ads-watched').textContent = userState.lifetimeAdCount || 0;
-            document.getElementById('total-earned').textContent = (userState.totalEarned || 0).toFixed(2);
-            document.getElementById('earning-wallet-balance').textContent = earningWalletBalance.toFixed(2);
-            
-            const moveBtn = document.getElementById('move-to-balance-btn');
-            if (earningWalletBalance < 10) {
-                moveBtn.disabled = true;
-                moveBtn.textContent = 'Min 10 TK Required';
-            } else {
-                moveBtn.disabled = false;
-                moveBtn.textContent = 'Transfer to Main Balance';
-            }
-
-            renderAdTask(); renderAdProgress(); renderDynamicTasks(); renderReferralSection(); renderWithdrawSection(); renderEarningsGraph(); renderDynamicLinks();
-        };
-        
-        const renderChannelOverlay = (channels) => {
-            const container = document.getElementById('channel-list-container');
-            container.innerHTML = '';
-            channels.forEach((ch, index) => {
-                const id = `ch${index + 1}`;
-                const div = document.createElement('div');
-                div.className = 'channel-card';
-                div.innerHTML = `
-                    <div class="channel-info">
-                        <h4>${ch.name}</h4>
-                        <p>Join to continue</p>
-                    </div>
-                    <button id="btn-${id}" class="join-btn" onclick="handleChannelClick('${ch.link}', 'btn-${id}')">Join</button>
-                `;
-                container.appendChild(div);
-            });
-        };
-
-        window.handleChannelClick = (url, btnId) => {
-            const btn = document.getElementById(btnId);
-            if(btn.classList.contains('verified')) return;
-
-            tg.openLink(url);
-            
-            let count = 5;
-            btn.disabled = true;
-            btn.innerText = `Check in ${count}s`;
-            
-            const interval = setInterval(() => {
-                count--;
-                if(count > 0) {
-                    btn.innerText = `Check in ${count}s`;
-                } else {
-                    clearInterval(interval);
-                    btn.innerText = 'Verified';
                     btn.classList.add('verified');
-                    
-                    if(btnId === 'btn-ch1') joinedChannels.ch1 = true;
-                    if(btnId === 'btn-ch2') joinedChannels.ch2 = true;
-                    if(btnId === 'btn-ch3') joinedChannels.ch3 = true;
+                    btn.innerHTML = `<span>${index + 1}. ${ch.name}</span> <i class="fas fa-check-circle"></i>`;
+                    btn.removeAttribute('href');
+                    checkAllVerified();
+                }, 2000); 
+            };
+            container.appendChild(btn);
+        });
+    }
 
-                    checkAllChannelsJoined();
-                }
-            }, 1000);
-        };
+    function checkAllVerified() {
+        const btns = document.querySelectorAll('.channel-btn');
+        let verified = 0;
+        btns.forEach(b => { if(b.classList.contains('verified')) verified++; });
+        
+        if(verified === channelsToJoin.length) {
+            const enterBtn = document.getElementById('enter-btn');
+            enterBtn.classList.add('active');
+            enterBtn.innerText = "Enter App 🚀";
+        }
+    }
 
-        const checkAllChannelsJoined = () => {
-            if(joinedChannels.ch1 && joinedChannels.ch2 && joinedChannels.ch3) {
-                tg.HapticFeedback.notificationOccurred('success');
+    function enterApp() {
+        const btns = document.querySelectorAll('.channel-btn');
+        let verified = 0;
+        btns.forEach(b => { if(b.classList.contains('verified')) verified++; });
+
+        if(verified === channelsToJoin.length) {
+            db.ref(`users/${tgUser.id}/channelsJoined`).set(true);
+        } else {
+            toast("Please join all channels first!");
+        }
+    }
+
+    // Calculate Total Ads Watched
+    function getTotalAdsCount() {
+        let count = 0;
+        if(appState.user.dailyAds) {
+            for (let key in appState.user.dailyAds) {
+                count += (appState.user.dailyAds[key] || 0);
+            }
+        }
+        return count;
+    }
+
+    // Calculate Total Tasks Completed
+    function getTotalTasksCount() {
+        let count = 0;
+        if(appState.user.taskHistory) {
+            for (let key in appState.user.taskHistory) {
+                if (appState.user.taskHistory[key] === true) count++;
+            }
+        }
+        return count;
+    }
+
+    window.onload = () => {
+        let refId = tg.initDataUnsafe?.start_param || null;
+
+        // UI Text Init
+        document.getElementById('u-name').innerText = appState.user.firstName;
+        document.getElementById('u-id').innerText = `ID: ${tgUser.id}`;
+        if(tgUser.photo_url) document.getElementById('u-img').src = tgUser.photo_url;
+
+        // Listeners for Settings
+        db.ref('settings').on('value', snap => {
+            if(snap.exists()) {
+                appState.settings = { ...appState.settings, ...snap.val() }; // Merge with defaults
                 
-                // SAVE TO DATABASE FOR ONE-TIME CHECK
-                const db = firebase.database();
-                db.ref(`users/${tgUser.id}/channelsJoined`).set(true).then(() => {
-                     setTimeout(() => {
-                        channelOverlay.style.display = 'none';
-                    }, 500);
+                // Enforce Min Refs to 10 as per request, unless DB says higher
+                if(appState.settings.minRefWithdraw < 10) appState.settings.minRefWithdraw = 10;
+
+                document.getElementById('ref-reward-amt').innerText = appState.settings.perRefReward.toFixed(2);
+                
+                // Update Ref Link
+                const linkInput = document.getElementById('ref-link');
+                const botLinkFromDb = appState.settings.botLink || DEFAULT_BOT_LINK;
+                linkInput.value = botLinkFromDb + tgUser.id;
+
+                // Update Withdrawal UI texts
+                document.getElementById('proc-time-text').innerText = "Processing: " + (appState.settings.processingTime || "48-72 Hours");
+                document.getElementById('w-rules-text').innerHTML = `Min Refs: <b>${appState.settings.minRefWithdraw}</b> | Ads: <b>${appState.settings.minAdWithdraw}</b> | Tasks: <b>${appState.settings.minTaskWithdraw}</b>`;
+                
+                renderAll();
+            }
+        });
+
+        // Listener for Ads (Admin Panel)
+        db.ref('ads').on('value', snap => {
+            appState.adsList = [];
+            if(snap.exists()) {
+                snap.forEach(child => {
+                    appState.adsList.push(child.val());
                 });
+            } else {
+                // Fallback if admin hasn't added ads yet
+                 appState.adsList = [];
             }
-        };
+            renderAds();
+        });
 
-        const renderAdProgress = () => {
-            const container = document.getElementById('ad-progress-container');
-            const dailyLimit = appConfig.dailyAdLimit || 1;
-            const watchedCount = userState.dailyAdCount || 0;
-            const percentage = (watchedCount / dailyLimit) * 100;
-            container.innerHTML = `
-                <div style="display:flex; justify-content:space-between; margin-bottom:8px; font-size:0.9rem; font-weight:600; color: var(--text-primary);">
-                    <span>Daily Progress</span>
-                    <span>${watchedCount}/${dailyLimit}</span>
-                </div>
-                <div class="progress-bar-bg"><div class="progress-bar-fg" style="width: ${percentage}%;"></div></div>
-            `;
-        };
-        
-        const renderEarningsGraph = async () => {
-             const chartEl = document.getElementById('earnings-chart'); const labelsEl = document.getElementById('earnings-chart-labels');
-            chartEl.innerHTML = ''; labelsEl.innerHTML = '';
-            const today = new Date(); const dates = [];
-            for (let i = 6; i >= 0; i--) { const date = new Date(today); date.setDate(today.getDate() - i); dates.push(date.toISOString().slice(0, 10)); }
-            const earningsPromises = dates.map(date => firebase.database().ref(`userEarnings/${tgUser.id}/${date}`).once('value'));
-            const snapshots = await Promise.all(earningsPromises);
-            const earningsData = snapshots.map(snap => snap.val() || 0);
-            const maxEarning = Math.max(...earningsData, 1);
-            earningsData.forEach((earning, index) => {
-                const height = (earning / maxEarning) * 100;
-                const dateLabel = new Date(dates[index]).toLocaleDateString('en-US', { day: 'numeric' });
-                chartEl.innerHTML += `<div class="bar" style="height: ${height}%;"><span class="tooltip">${earning.toFixed(2)} TK</span></div>`;
-                labelsEl.innerHTML += `<span>${dateLabel}</span>`;
-            });
-        };
-        
-        const handleWatchAd = async () => {
-            if (userState.dailyAdCount >= appConfig.dailyAdLimit) { tg.showAlert("You have reached your daily ad watch limit."); return; }
-            const now = Date.now();
-            if (userState.breakUntil && now < userState.breakUntil) {
-                const remaining = Math.ceil((userState.breakUntil - now) / 60000);
-                tg.showAlert(`Please wait for ${remaining} more minutes.`); return;
-            }
-            
-            const adFunction = window['show_' + appConfig.adZoneId];
-            if (typeof adFunction !== 'function') {
-                tg.showAlert("Ad network is not ready yet. Please wait a few seconds and try again."); return;
-            }
+        db.ref('tasks').on('value', snap => {
+            webTasks = {}; if(snap.exists()) { snap.forEach(child => { webTasks[child.key] = child.val(); }); }
+            renderTasks();
+        });
 
-            showPopup(`
-                <div class="loader-container" style="width:50px; height:50px; margin-bottom:20px;">
-                    <div class="loader-ring" style="border-width:3px;"></div>
-                    <div class="loader-ring-inner" style="width:30px; height:30px; border-width:3px;"></div>
-                </div>
-                <h2 style="margin-bottom:10px;">Loading Ad</h2>
-                <p style="color:var(--text-secondary); font-size:0.9rem;">Please wait...</p>
-            `);
-            
-            try {
-                await adFunction();
-                closePopup();
-                const adValue = appConfig.adValue || 0;
-                
-                earningWalletBalance += adValue;
-                localStorage.setItem(`earningWallet_${tgUser.id}`, earningWalletBalance.toString());
+        db.ref('milestones').on('value', snap => {
+            dynamicMilestones =[]; if(snap.exists()) { snap.forEach(child => { dynamicMilestones.push(child.val()); }); }
+            dynamicMilestones.sort((a, b) => a.req - b.req); renderMilestones();
+        });
 
-                userState.dailyAdCount++;
-                userState.lifetimeAdCount++;
-                userState.totalEarned = (userState.totalEarned || 0) + adValue;
-
-                const db = firebase.database(); const userRef = db.ref(`users/${tgUser.id}`);
-                const updates = {};
-                updates.dailyAdCount = userState.dailyAdCount;
-                updates.lifetimeAdCount = userState.lifetimeAdCount;
-                updates.totalEarned = userState.totalEarned;
-                if ((userState.dailyAdCount) % (appConfig.adsPerBreak || 0) === 0 && (appConfig.adsPerBreak || 0) > 0) {
-                    updates.breakUntil = Date.now() + ((appConfig.breakDuration || 0) * 60000);
-                    userState.breakUntil = updates.breakUntil;
-                }
-                await userRef.update(updates);
-                
-                const today = new Date().toISOString().slice(0, 10);
-                await db.ref(`userEarnings/${tgUser.id}/${today}`).set(firebase.database.ServerValue.increment(adValue));
-
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert(`+${adValue.toFixed(2)} TK added to your Earning Wallet.`);
-                
-                renderUI();
-
-            } catch (error) {
-                console.error("Ad failed to load:", error);
-                closePopup();
-                tg.showAlert("Ad could not be loaded. Please try again.");
-            }
-        };
-
-        const handleMoveToBalance = async () => {
-            if(earningWalletBalance < 10) { 
-                tg.showAlert("Minimum 10.00 TK is required to transfer funds."); 
+        // User Initialization
+        const userRef = db.ref('users/' + tgUser.id);
+        userRef.once('value', snapshot => {
+            if(snapshot.exists() && snapshot.val().isBanned) {
+                document.getElementById('ban-screen').style.display = 'flex';
+                document.getElementById('loader').classList.add('hidden');
+                document.getElementById('force-join-screen').classList.add('hidden');
+                document.getElementById('app').style.display = 'none';
                 return; 
             }
-            
-            const btn = document.getElementById('move-to-balance-btn'); 
-            btn.disabled = true; 
-            btn.textContent = 'Transferring...';
-            
-            try {
-                const db = firebase.database();
-                await db.ref(`users/${tgUser.id}/balance`).set(firebase.database.ServerValue.increment(earningWalletBalance));
-                userState.balance += earningWalletBalance;
-                earningWalletBalance = 0;
-                localStorage.setItem(`earningWallet_${tgUser.id}`, '0');
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("Successfully transferred to main balance!");
-            } catch(error) { 
-                console.error("Failed to move balance:", error); 
-                tg.showAlert("Failed to move balance. Please try again.");
-            } finally { 
-                renderUI(); 
-            }
-        };
 
-        const renderWithdrawalHistory = () => {
-            const listEl = document.getElementById('withdrawal-history-list');
-            if (userTransactions.length === 0) { listEl.innerHTML = '<div style="text-align:center; padding:30px; color:var(--text-secondary); background:var(--surface-color); border-radius:var(--radius); border:1px solid var(--border-color);">No history found.</div>'; return; }
-            listEl.innerHTML = userTransactions.map(item => `
-                <div class="history-item">
-                    <div class="history-details">
-                        <p style="font-weight:600; color:var(--text-primary);">${item.amount.toFixed(2)} TK - ${item.method}</p>
-                        <small style="color:var(--text-secondary);">${new Date(item.timestamp).toLocaleDateString()}</small>
-                    </div>
-                    <span class="history-status status-${item.status}">${item.status}</span>
-                </div>`).join('');
-        };
-        
-        const setupNavigation = () => {
-            const navButtons = document.querySelectorAll('.nav-btn'); const pages = document.querySelectorAll('.page');
-            navButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const pageId = button.dataset.page;
-                    pages.forEach(page => page.classList.remove('active'));
-                    document.getElementById(pageId).classList.add('active');
-                    navButtons.forEach(btn => btn.classList.remove('active'));
-                    button.classList.add('active');
-                    if (pageId === 'profile-page') { renderWithdrawalHistory(); }
-                    if (pageId === 'leaderboard-page') { renderLeaderboard(); }
+            if(!snapshot.exists()) {
+                const newUser = {
+                    id: tgUser.id,
+                    firstName: tgUser.first_name || "User",
+                    photoUrl: tgUser.photo_url || '',
+                    balance: 0,
+                    totalEarned: 0,
+                    referrals: 0,
+                    referralIncome: 0,
+                    tasksCompleted: 0,
+                    dailyAds: {},
+                    taskHistory: {},
+                    claimedMilestones: {},
+                    channelsJoined: false,
+                    deviceId: deviceId,
+                    isBanned: false,
+                    welcomeBonusClaimed: false,
+                    joinDate: Date.now()
+                };
+                userRef.set(newUser);
+
+                const bonusAmt = 2.00; 
+                db.ref(`users/${tgUser.id}`).update({
+                    balance: bonusAmt,
+                    totalEarned: bonusAmt,
+                    welcomeBonusClaimed: true
                 });
-            });
-        };
-        
-        const setupEventListeners = () => {
-            popup.addEventListener('click', (e) => { if (e.target.classList.contains('popup-close-btn') || e.target.id === 'popup') closePopup(); });
-            document.querySelector('.leaderboard-toggle').addEventListener('click', (e) => {
-                if(e.target.classList.contains('toggle-btn')) {
-                    document.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('active'));
-                    e.target.classList.add('active');
-                    renderLeaderboard();
+                toast("Welcome Bonus Added: +2.00 Tk 🎉");
+
+                if(refId && refId != tgUser.id) {
+                    db.ref(`users/${refId}/referrals`).set(firebase.database.ServerValue.increment(1));
+                    // Calculate ref income immediately
+                    let rw = appState.settings.perRefReward || 0.50;
+                    db.ref(`users/${refId}/referralIncome`).set(firebase.database.ServerValue.increment(rw));
+                    db.ref(`users/${refId}/balance`).set(firebase.database.ServerValue.increment(rw)); 
+                    db.ref(`users/${refId}/totalEarned`).set(firebase.database.ServerValue.increment(rw));
+                }
+            } else {
+                const data = snapshot.val();
+                if(!data.deviceId) {
+                    userRef.update({ deviceId: deviceId });
+                }
+            }
+        });
+
+        // Live User Updates
+        userRef.on('value', snap => {
+            if(snap.exists()) {
+                let v = snap.val();
+                appState.user = { ...appState.user, ...v };
+                
+                document.getElementById('u-bal').innerText = appState.user.balance.toFixed(2); 
+                document.getElementById('u-earn').innerText = appState.user.totalEarned.toFixed(2); 
+                document.getElementById('u-ref').innerText = appState.user.referrals;
+                
+                // Update Stats Page
+                const totalAds = getTotalAdsCount();
+                const totalTasks = getTotalTasksCount();
+                
+                document.getElementById('stat-ref-inc').innerText = (appState.user.referralIncome || 0).toFixed(2) + " Tk";
+                document.getElementById('stat-total-refs').innerText = appState.user.referrals;
+                document.getElementById('stat-total-ads').innerText = totalAds;
+
+                // Update Profile Checks
+                document.getElementById('chk-refs').innerText = appState.user.referrals;
+                document.getElementById('chk-ads').innerText = totalAds;
+                document.getElementById('chk-tasks').innerText = totalTasks;
+
+                if(v.isBanned) {
+                    document.getElementById('ban-screen').style.display = 'flex';
+                    document.getElementById('loader').classList.add('hidden');
+                    document.getElementById('force-join-screen').classList.add('hidden');
+                    document.getElementById('app').style.display = 'none';
+                    return;
+                }
+
+                document.getElementById('loader').classList.add('hidden');
+
+                if (appState.user.channelsJoined) {
+                    document.getElementById('force-join-screen').classList.add('hidden');
+                    document.getElementById('app').style.display = 'block';
+                } else {
+                    document.getElementById('app').style.display = 'none';
+                    document.getElementById('force-join-screen').classList.remove('hidden');
+                    document.getElementById('force-join-screen').style.display = 'flex';
+                    initGatekeeper();
+                }
+                renderAll();
+            }
+        });
+
+        db.ref('withdrawals').orderByChild('userId').equalTo(tgUser.id).on('value', snap => {
+            let h =[]; snap.forEach(c => h.push(c.val())); appState.history = h.reverse(); renderHistory();
+        });
+
+        // Leaderboard Logic (Referrals + Balance)
+        db.ref('users').orderByChild('referrals').limitToLast(50).on('value', snap => {
+            let l = [];
+            snap.forEach(c => {
+                let u = c.val();
+                if(u && u.firstName) {
+                    l.push(u);
                 }
             });
-            document.getElementById('dynamic-tasks-container').addEventListener('click', (e) => handleClaimTask(e));
-            document.getElementById('profile-page').addEventListener('submit', (e) => handleWithdraw(e));
-            document.getElementById('referral-section').addEventListener('click', (e) => { if(e.target.id === 'copy-ref-link-btn') copyReferralLink(); });
-            document.getElementById('move-to-balance-btn').addEventListener('click', handleMoveToBalance);
-        };
+            l.sort((a, b) => (b.referrals || 0) - (a.referrals || 0));
+            appState.leaderboard = l.slice(0, 20);
+            renderLeaderboard();
+        });
+    };
 
-        const renderAdTask = () => {
-            const container = document.getElementById('ad-task-container');
-            const now = Date.now();
-            const onBreak = userState.breakUntil && now < userState.breakUntil;
-            const limitReached = userState.dailyAdCount >= appConfig.dailyAdLimit;
-            let html = '';
-            if (onBreak) {
-                const remaining = Math.ceil((userState.breakUntil - now) / 60000);
-                html = `<div class="task-container"><i class="fas fa-hourglass-half" style="font-size:28px; color:var(--pending);"></i><div class="task-info"><h3>Break Time</h3><p>Wait ${remaining} minutes.</p></div><button class="action-btn" disabled>Wait</button></div>`;
-            } else if (limitReached) {
-                html = `<div class="task-container"><i class="fas fa-stop-circle" style="font-size:28px; color:var(--text-secondary);"></i><div class="task-info"><h3>Daily Limit Reached</h3><p>Come back tomorrow.</p></div><button class="action-btn" disabled>Done</button></div>`;
-            } else {
-                html = `<div class="task-container"><i class="fas fa-play-circle" style="font-size:28px; color:var(--primary-color);"></i><div class="task-info"><h3>Watch Ad</h3><p>Earn ${appConfig.adValue || 0} TK.</p></div><button id="watch-ad-btn" class="action-btn">Watch</button></div>`;
-            }
-            container.innerHTML = html;
-            if (!onBreak && !limitReached) { document.getElementById('watch-ad-btn').addEventListener('click', handleWatchAd); }
-        };
+    function renderAll() { renderAds(); renderTasks(); renderMilestones(); }
 
-        const handleClaimTask = async (e) => {
-            if (e.target.classList.contains('action-btn') && e.target.dataset.taskId) {
-                const taskId = e.target.dataset.taskId;
-                const task = appConfig.tasks[taskId];
-                if (!task || (userState.completedTasks && userState.completedTasks[taskId])) { tg.showAlert('Already claimed.'); return; }
-                tg.openLink(e.target.dataset.taskUrl);
-                e.target.disabled = true; e.target.textContent = 'Checking...';
-                setTimeout(async () => {
-                    try {
-                        const db = firebase.database(); const userRef = db.ref(`users/${tgUser.id}`);
-                        await userRef.child(`completedTasks/${taskId}`).set(true);
-                        await userRef.child('balance').set(firebase.database.ServerValue.increment(task.reward));
-                        userState.balance += task.reward;
-                        if (!userState.completedTasks) userState.completedTasks = {};
-                        userState.completedTasks[taskId] = true;
-                        tg.HapticFeedback.notificationOccurred('success');
-                        tg.showAlert(`+${task.reward} TK Bonus Received!`);
-                        renderUI();
-                    } catch (error) { tg.showAlert('Claim failed.'); e.target.disabled = false; e.target.textContent = 'Retry'; }
-                }, 5000);
-            }
-        };
+    function renderAds() {
+        const el = document.getElementById('ad-area'); el.innerHTML = '';
+        let limit = appState.settings.minAdWithdraw || 20; // This acts as daily cap essentially
+        // Or strictly use a daily limit from settings if separated. For now, linking to withdraw requirement logic.
+        // Let's assume a hard limit of 50 per day per ad type to prevent abuse, or use limitToLast.
+        
+        // Using adsList from Admin Panel
+        if(appState.adsList.length === 0) { 
+            el.innerHTML = `<p style="grid-column: 1 / -1; text-align:center; color:#7f8c8d; font-size:0.9rem;">No ads available right now</p>`; 
+            return; 
+        }
 
-        const handleWithdraw = async (e) => {
-            if(e.target.id !== 'withdraw-form') return;
-            e.preventDefault();
-
-            const minRefsRequired = appConfig.minimumWithdrawReferrals || 0;
-            const userReferrals = userState.referrals || 0;
+        appState.adsList.forEach((ad, idx) => {
+            const adId = ad.id || `ad_${idx}`;
+            const done = appState.user.dailyAds[adId] || 0; 
+            // Check if daily limit reached (using settings.minAdWithdraw as the goal for now, or a separate dailyCap)
+            const dailyCap = 50; 
+            const max = done >= dailyCap;
             
-            if (minRefsRequired > 0 && userReferrals < minRefsRequired) {
-                tg.showAlert(`You need at least ${minRefsRequired} referrals to withdraw. Current: ${userReferrals}.`);
-                return;
-            }
-
-            const methodEl = document.getElementById('withdraw-method');
-            const accountNumber = document.getElementById('account-number').value;
-            const amount = parseFloat(document.getElementById('amount').value);
-            const selectedMethod = appConfig.withdrawMethods.find(m => m.name === methodEl.value);
-            
-            if (isNaN(amount) || amount <= 0) { tg.showAlert("Invalid amount."); return; }
-            if (!selectedMethod) { tg.showAlert("Invalid method."); return; }
-            if (amount < selectedMethod.min) { tg.showAlert(`Min: ${selectedMethod.min} TK.`); return; }
-            if (amount > userState.balance) { tg.showAlert("Insufficient balance."); return; }
-            
-            const btn = document.getElementById('withdraw-submit-btn'); btn.disabled = true; btn.textContent = 'Processing...';
-            const db = firebase.database();
-            try {
-                const userRef = db.ref(`users/${tgUser.id}`);
-                userState.balance -= amount;
-                renderUI(); 
-                
-                await userRef.child('balance').set(firebase.database.ServerValue.increment(-amount));
-                const reqId = db.ref('withdrawals/pending').push().key;
-                const newRequest = { id: reqId, userId: tgUser.id, userName: `${userState.firstName} ${userState.lastName}`, method: selectedMethod.name, account: accountNumber, amount: amount, status: 'pending', timestamp: firebase.database.ServerValue.TIMESTAMP };
-                await db.ref(`withdrawals/pending/${reqId}`).set(newRequest);
-                
-                userTransactions.unshift(newRequest);
-                renderWithdrawalHistory(); 
-
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("Withdrawal request submitted!");
-                document.getElementById('withdraw-form').reset();
-            } catch (error) {
-                userState.balance += amount;
-                tg.HapticFeedback.notificationOccurred('error'); 
-                tg.showAlert("Request failed. Balance restored.");
-            } finally {
-                renderUI();
-                btn.disabled = false;
-                btn.textContent = 'Submit Request';
-            }
-        };
-
-        const copyReferralLink = () => {
-            const refLinkInput = document.getElementById('referral-link');
-            refLinkInput.select();
-            refLinkInput.setSelectionRange(0, 99999);
-            navigator.clipboard.writeText(refLinkInput.value).then(() => {
-                tg.HapticFeedback.notificationOccurred('success');
-                tg.showAlert("Referral link copied!");
-            }).catch(() => document.execCommand('copy'));
-        };
-
-        const renderLeaderboard = () => {
-            const activeBoard = document.querySelector('.toggle-btn.active').dataset.board;
-            const listEl = document.getElementById(activeBoard === 'referral' ? 'referral-leaderboard-list' : 'earning-leaderboard-list');
-            const data = leaderboardData[activeBoard];
-            document.getElementById('referral-board').style.display = activeBoard === 'referral' ? 'block' : 'none';
-            document.getElementById('earning-board').style.display = activeBoard === 'earning' ? 'block' : 'none';
-            listEl.innerHTML = '';
-            if (data.length === 0) { listEl.innerHTML = '<li style="text-align:center; padding:20px; color:var(--text-secondary);">No data available.</li>'; return; }
-            data.forEach((user, index) => {
-                const score = activeBoard === 'referral' ? (user.referrals || 0) : (user.totalEarned || 0).toFixed(2);
-                const item = document.createElement('li'); item.className = 'leaderboard-item';
-                item.innerHTML = `<span style="font-weight:800; color:var(--primary-color); width:35px;">#${index + 1}</span><img src="${user.photoUrl || 'https://via.placeholder.com/40'}" alt="User" style="width:40px; height:40px; border-radius:50%; margin-right:12px; border:2px solid white; box-shadow:var(--shadow-sm);"><span style="flex:1; font-weight:600;">${user.firstName}</span><span style="font-weight:700; color:var(--text-primary);">${score}</span>`;
-                listEl.appendChild(item);
-            });
-        };
-
-        const renderDynamicTasks = () => {
-            const container = document.getElementById('dynamic-tasks-container'); container.innerHTML = '';
-            if (appConfig.tasks) {
-                const tasks = [];
-                for(const key in appConfig.tasks) { tasks.push({key, ...appConfig.tasks[key]}); }
-                tasks.reverse();
-                tasks.forEach(task => {
-                    const isCompleted = userState.completedTasks && userState.completedTasks[task.key];
-                    const el = document.createElement('div'); el.className = 'task-container';
-                    el.innerHTML = `<img class="task-icon-img" src="${task.icon}" alt="icon"><div class="task-info"><h3>${task.name}</h3><p>Reward: ${task.reward} TK</p></div><button class="action-btn" data-task-id="${task.key}" data-task-url="${task.url}" ${isCompleted ? 'disabled' : ''}>${isCompleted ? 'Claimed' : 'Claim'}</button>`;
-                    container.appendChild(el);
-                });
-            }
-        };
-
-        const renderReferralSection = () => {
-            const container = document.getElementById('referral-section');
-            const refLink = `https://t.me/${appConfig.botUsername || 'LuxoraBdBot'}/app?startapp=${tgUser.id}`;
-            container.innerHTML = `
-                <div class="task-container" style="flex-direction: column; align-items: stretch; background: #FFF8F8; border: 1px solid #FFE4E6;">
-                    <div style="text-align:center;">
-                        <h3 style="color:var(--primary-color); margin-bottom:5px;">Invite & Earn</h3>
-                        <p style="font-size:0.9rem; color:var(--text-secondary); margin-bottom:15px;">Earn ${appConfig.referralBonus || 0} TK per invite.</p>
-                    </div>
-                    <input type="text" id="referral-link" value="${refLink}" readonly style="text-align:center; border-color:var(--primary-color); background:#fff; margin-bottom:12px; font-weight:600; color:var(--primary-color);">
-                    <button id="copy-ref-link-btn" class="action-btn" style="width:100%; justify-content:center;">Copy Referral Link</button>
+            el.innerHTML += `
+                <div class="ad-card ${max?'disabled':''}" id="card-${adId}" onclick="${max?'':`playSfx('click'); watchAd('${adId}', '${ad.network}', '${ad.link}', '${ad.reward}')`}">
+                    <i class="${ad.icon || 'fas fa-play-circle'}"></i>
+                    <h4>${ad.name}</h4>
+                    <span id="cnt-${adId}">${done}/${dailyCap}</span>
                 </div>`;
-        };
+        });
+    }
 
-        const renderWithdrawSection = () => {
-            const container = document.getElementById('withdraw-section'); let optionsHtml = '';
-            if (appConfig.withdrawMethods) { appConfig.withdrawMethods.forEach(method => { optionsHtml += `<option value="${method.name}">${method.name} (Min: ${method.min} TK)</option>`; }); }
-            
-            const minRefs = appConfig.minimumWithdrawReferrals || 0;
-            let referralNotice = '';
-            if (minRefs > 0) {
-                referralNotice = `<div style="background: #FEF2F2; color: #B91C1C; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 20px; border: 1px solid #FECACA; text-align: center; font-weight: 500;">⚠️ Minimum ${minRefs} referrals required for withdrawal.</div>`;
+    function watchAd(id, net, link, rewardAmtParam) {
+        let reward = parseFloat(rewardAmtParam) || appState.settings.adReward || 0.05;
+        
+        // Button State: Processing / Waiting
+        const card = document.getElementById(`card-${id}`);
+        if(card) {
+            card.style.pointerEvents = 'none';
+            card.style.opacity = '0.7';
+            card.querySelector('h4').innerText = "Watching...";
+        }
+
+        toast("Loading Ad... ⏳"); tg.HapticFeedback.impactOccurred('light');
+        
+        if(net === 'adsterra' || net === 'monetag' || net === 'extra' || net === 'link') {
+            if(link && link.trim() !== "") {
+                let finalLink = link.trim();
+                if (!finalLink.startsWith('http')) finalLink = 'https://' + finalLink;
+                tg.openLink(finalLink);
+                // Simulating check time
+                startConfirmTimer(id, reward, 10); // 10 seconds wait for external links
+            } else { toast("Ad error ⚠️"); resetAdBtn(id); }
+        } else if(net === 'adsgram') {
+            if(!adsgramController) adsgramController = Adsgram.init({ blockId: link });
+            adsgramController.show().then(res => { 
+                if(res.done) startConfirmTimer(id, reward, 3); // 3 seconds wait for adsgram
+            }).catch(() => { toast("Video failed ⚠️"); resetAdBtn(id); });
+        }
+    }
+
+    function resetAdBtn(id) {
+        const card = document.getElementById(`card-${id}`);
+        if(card) {
+            card.style.pointerEvents = 'all';
+            card.style.opacity = '1';
+            card.querySelector('h4').innerText = "Retry";
+        }
+    }
+
+    function startConfirmTimer(id, reward, seconds) {
+        const card = document.getElementById(`card-${id}`);
+        const span = document.getElementById(`cnt-${id}`);
+        if(!card) return;
+        
+        let left = seconds;
+        card.querySelector('h4').innerText = "Checking...";
+        
+        const timer = setInterval(() => {
+            if(span) span.innerText = `Wait ${left}s`;
+            left--;
+            if(left < 0) {
+                clearInterval(timer);
+                showConfirmButton(id, reward, 'ad');
             }
+        }, 1000);
+    }
 
-            container.innerHTML = `
-                <form id="withdraw-form">
-                    <h3 style="margin-bottom:20px; border-left:4px solid var(--primary-color); padding-left:12px; font-weight:800;">Withdraw Funds</h3>
-                    ${referralNotice}
-                    <div class="form-group">
-                        <label>Payment Method</label>
-                        <select id="withdraw-method" required>${optionsHtml}</select>
-                    </div>
-                    <div class="form-group">
-                        <label>Account Number</label>
-                        <input type="text" id="account-number" placeholder="Enter your number" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Amount (TK)</label>
-                        <input type="number" id="amount" placeholder="0.00" step="any" required>
-                    </div>
-                    <button type="submit" id="withdraw-submit-btn" class="action-btn" style="width:100%; justify-content:center;">Submit Request</button>
-                </form>`;
-        };
+    function showConfirmButton(id, reward, type) {
+        // Replace the ad card or task button with a confirm button
+        if(type === 'ad') {
+            const card = document.getElementById(`card-${id}`);
+            card.style.pointerEvents = 'none'; // Disable original click
+            card.style.backgroundColor = 'var(--success)';
+            card.style.color = 'white';
+            card.innerHTML = `
+                <i class="fas fa-check-circle"></i>
+                <h4>Claim Reward</h4>
+                <span>+${reward.toFixed(2)} Tk</span>
+            `;
+            // Re-bind click
+            card.onclick = () => creditAd(id, reward);
+        } else if (type === 'task') {
+            const btn = document.getElementById(`btn-${id}`);
+            btn.className = 'btn-act btn-claim';
+            btn.innerText = `Claim ${reward.toFixed(2)}`;
+            btn.disabled = false;
+            btn.onclick = () => creditTask(id, reward);
+        }
+    }
 
-        const renderDynamicLinks = () => {
-            const container = document.getElementById('dynamic-links-container'); container.innerHTML = '';
-            if (appConfig.links) {
-                const links = [];
-                for (const key in appConfig.links) { links.push({key, ...appConfig.links[key]}); }
-                links.reverse();
-                links.forEach(link => {
-                    const el = document.createElement('div'); el.className = 'task-container';
-                    el.innerHTML = `<img class="task-icon-img" src="${link.icon}" alt="icon"><div class="task-info"><h3>${link.name}</h3></div><button class="action-btn" onclick="window.Telegram.WebApp.openLink('${link.url}')">Visit</button>`;
-                    container.appendChild(el);
-                });
+    function creditAd(adId, amount) {
+        playSfx('coin'); tg.HapticFeedback.notificationOccurred('success');
+        let currentDone = appState.user.dailyAds[adId] || 0;
+        
+        db.ref(`users/${tgUser.id}`).update({ 
+            balance: appState.user.balance + amount, 
+            totalEarned: appState.user.totalEarned + amount,
+            [`dailyAds/${adId}`]: currentDone + 1 
+        });
+        toast(`Reward Added: +${amount} Tk`);
+        
+        // Re-render to reset button state
+        renderAds();
+    }
+
+    function renderTasks() {
+        const el = document.getElementById('task-area'); el.innerHTML = '';
+        const taskKeys = Object.keys(webTasks);
+        if(taskKeys.length === 0) { el.innerHTML = `<p style="text-align:center; color:#7f8c8d; font-size:0.9rem; padding: 10px;">No tasks available</p>`; return; }
+
+        taskKeys.forEach(k => {
+            const t = webTasks[k]; 
+            const isDone = appState.user.taskHistory[k];
+            let btnHtml = isDone ? `<button class="btn-act" style="background:#b2bec3; color:white;" disabled><i class="fas fa-check"></i> Done</button>` : `<button id="btn-${k}" class="btn-act btn-start" onclick="playSfx('click'); runTask('${k}')">Start</button>`;
+            el.innerHTML += `<div class="task-item" style="opacity:${isDone?0.6:1}"><div class="task-left"><img src="${t.icon}" class="task-icon"><div class="task-info"><h4>${t.name}</h4><small>+${t.reward} Tk</small></div></div>${btnHtml}</div>`;
+        });
+    }
+
+    function runTask(id) {
+        const t = webTasks[id]; 
+        tg.openLink(t.url); 
+        tg.HapticFeedback.impactOccurred('medium');
+        
+        const btn = document.getElementById(`btn-${id}`); 
+        let s = 10; // Timer 10s
+        btn.className = 'btn-act btn-wait'; 
+        btn.disabled = true;
+        
+        const i = setInterval(() => {
+            btn.innerText = `${s}s`; s--;
+            if(s < 0) { 
+                clearInterval(i); 
+                showConfirmButton(id, t.reward, 'task');
             }
-        };
+        }, 1000);
+    }
 
-        initApp();
-    });
-    </script>
+    function creditTask(id, amount) {
+        playSfx('coin'); tg.HapticFeedback.notificationOccurred('success');
+        let currentTasks = getTotalTasksCount();
+        db.ref(`users/${tgUser.id}`).update({ 
+            balance: appState.user.balance + amount, 
+            totalEarned: appState.user.totalEarned + amount,
+            tasksCompleted: currentTasks + 1,
+            [`taskHistory/${id}`]: true 
+        });
+        toast("Task Reward Claimed! 💰");
+        renderTasks();
+    }
+
+    function renderMilestones() {
+        const el = document.getElementById('milestone-area'); el.innerHTML = '';
+        const refs = appState.user.referrals || 0;
+        if(dynamicMilestones.length === 0) { el.innerHTML = `<p style="text-align:center; color:#7f8c8d; font-size:0.9rem; padding: 10px;">No milestones available</p>`; return; }
+
+        dynamicMilestones.forEach(m => {
+            const isClaimed = appState.user.claimedMilestones[m.req];
+            const canClaim = refs >= m.req && !isClaimed;
+            const progress = Math.min(refs, m.req); const percent = (progress / m.req) * 100;
+            let btnHtml = isClaimed ? `<button class="btn-act" style="background:#b2bec3; color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Claimed</button>` : (canClaim ? `<button class="btn-act btn-claim" onclick="claimMilestone(${m.req}, ${m.reward})">Claim</button>` : `<button class="btn-act btn-wait" disabled>${progress}/${m.req}</button>`);
+            el.innerHTML += `<div class="task-item" style="flex-direction: column; align-items: stretch; gap: 8px;"><div style="display:flex; justify-content:space-between; align-items:center;"><div class="task-info"><h4>${m.title}</h4><small style="color:var(--primary);"><i class="fas fa-coins"></i> Bonus: ${m.reward} Tk</small></div>${btnHtml}</div><div class="progress-bg" style="background:#dfe6e9; height:6px; border-radius:3px;"><div class="progress-bar" style="width:${percent}%; background:var(--success); height:100%;"></div></div></div>`;
+        });
+    }
+
+    function claimMilestone(req, reward) {
+        playSfx('coin'); tg.HapticFeedback.notificationOccurred('success');
+        db.ref(`users/${tgUser.id}`).update({ balance: appState.user.balance + reward, totalEarned: appState.user.totalEarned + reward,[`claimedMilestones/${req}`]: true });
+        toast(`Milestone Bonus: +${reward} Tk! 🎉`);
+    }
+
+    function requestWithdraw() {
+        const min = appState.settings.minWithdraw || 10; 
+        const reqRef = appState.settings.minRefWithdraw || 10; 
+        const reqAd = appState.settings.minAdWithdraw || 20;
+        const reqTask = appState.settings.minTaskWithdraw || 5;
+        
+        const amtInput = document.getElementById('w-amt').value;
+        const amt = parseFloat(amtInput);
+        const acc = document.getElementById('w-acc').value;
+
+        const currentRef = appState.user.referrals || 0;
+        const currentAd = getTotalAdsCount();
+        const currentTask = getTotalTasksCount();
+
+        if(currentRef < reqRef) { toast(`Need ${reqRef} Referrals (You have ${currentRef}) ⚠️`); return; }
+        if(currentAd < reqAd) { toast(`Need ${reqAd} Ads Watched (You have ${currentAd}) ⚠️`); return; }
+        if(currentTask < reqTask) { toast(`Need ${reqTask} Tasks Done (You have ${currentTask}) ⚠️`); return; }
+
+        if(!acc || acc.trim() === '') { toast("Enter account details ⚠️"); return; }
+        if(!amt || amt < min) { toast(`Minimum withdrawal is ${min} Tk ⚠️`); return; }
+        if(amt > appState.user.balance) { toast("Insufficient balance ⚠️"); return; }
+        
+        const reqId = "REQ" + Date.now();
+        db.ref(`withdrawals/${reqId}`).set({ 
+            id: reqId, 
+            userId: tgUser.id, 
+            userName: appState.user.firstName || "User", 
+            method: document.getElementById('w-method').value, 
+            account: acc, 
+            amount: amt, 
+            status: "Pending", 
+            timestamp: Date.now() 
+        }).then(() => {
+            db.ref(`users/${tgUser.id}/balance`).set(appState.user.balance - amt);
+            document.getElementById('w-amt').value = ''; 
+            document.getElementById('w-acc').value = '';
+            toast("Withdrawal Request Sent! ✨"); 
+            tg.HapticFeedback.notificationOccurred('success');
+        });
+    }
+
+    function renderLeaderboard() {
+        const p = document.getElementById('podium-area'); const l = document.getElementById('lb-area');
+        p.innerHTML = ''; l.innerHTML = ''; const top = appState.leaderboard;
+        
+        if(top.length === 0) { 
+            l.innerHTML = `<div style="text-align:center; padding:20px; color:#aaa;">No data available</div>`; 
+            return; 
+        }
+
+        // Podium
+        if(top[1]) p.innerHTML += getPodium(top[1], 2); 
+        if(top[0]) p.innerHTML += getPodium(top[0], 1); 
+        if(top[2]) p.innerHTML += getPodium(top[2], 3);
+
+        // List (Start from index 3)
+        for(let i=3; i<top.length; i++) { 
+            l.innerHTML += `
+            <div class="lb-item">
+                <span class="lb-rank">#${i+1}</span>
+                <img src="${top[i].photoUrl||'https://via.placeholder.com/40'}" class="lb-img">
+                <div class="lb-name">${top[i].firstName}</div>
+                <div class="lb-vals">
+                    <span class="lb-val">${top[i].referrals || 0} Refs</span>
+                    <span class="lb-bal">${(top[i].balance||0).toFixed(1)} Tk</span>
+                </div>
+            </div>`; 
+        }
+    }
+
+    function getPodium(u, r) { 
+        const rankColors = {1: 'var(--gold)', 2: 'var(--silver)', 3: 'var(--bronze)'};
+        return `<div class="podium-item rank-${r}"><div class="crown"><i class="fas fa-crown"></i></div><img src="${u.photoUrl||'https://via.placeholder.com/60'}" class="podium-img" style="border-color:${rankColors[r]}"><div class="podium-name">${u.firstName}</div><div class="podium-score">${u.referrals || 0} Refs</div><div style="font-size:0.7rem; font-weight:600; color:#555;">${(u.balance||0).toFixed(1)} Tk</div></div>`; 
+    }
+    
+    function renderHistory() {
+        const el = document.getElementById('hist-area'); el.innerHTML = '';
+        if(appState.history.length === 0) { el.innerHTML='<p style="text-align:center;color:#aaa">No transactions</p>'; return; }
+        appState.history.forEach(x => { 
+            el.innerHTML += `<div class="hist-item ${x.status}"><div class="hist-info"><h4>${x.method} - ${x.amount} Tk</h4><small>${new Date(x.timestamp).toLocaleDateString()}</small></div><span class="status-badge">${x.status}</span></div>`; 
+        });
+    }
+
+    function nav(p, e) {
+        document.querySelectorAll('.page').forEach(x => x.classList.remove('active')); document.getElementById(p).classList.add('active');
+        document.querySelectorAll('.nav i').forEach(x => x.classList.remove('active')); e.classList.add('active'); tg.HapticFeedback.impactOccurred('light');
+    }
+    
+    function copyRef() { 
+        const link = document.getElementById('ref-link').value;
+        if(navigator.clipboard) {
+            navigator.clipboard.writeText(link).then(() => toast("Link Copied! 📋"));
+        } else {
+            const temp = document.createElement('textarea');
+            temp.value = link; document.body.appendChild(temp);
+            temp.select(); document.execCommand('copy');
+            document.body.removeChild(temp); toast("Link Copied! 📋");
+        }
+    }
+    function shareTg() { tg.openTelegramLink(`https://t.me/share/url?url=${encodeURIComponent(document.getElementById('ref-link').value)}`); }
+    function openSupport() { tg.openLink(appState.settings.supportLink || "https://t.me/Ads_payment_admin"); }
+    function toast(m) { const t = document.getElementById('toast'); t.innerText=m; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3000); }
+</script>
 </body>
 </html>
