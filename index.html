@@ -254,6 +254,35 @@
     .bonus-btn:disabled{opacity:0.7;cursor:not-allowed;}
     .bonus-claim{background:linear-gradient(135deg,#6C5CE7,#A29BFE);color:#fff;}
     .bonus-close{background:rgba(255,255,255,.08);color:#e5e7eb;border:1px solid rgba(255,255,255,.12);}
+
+    /* ========== STATUS NOTIFICATION MODAL ========== */
+    .notif-overlay{position:fixed;inset:0;display:none;align-items:center;justify-content:center;z-index:13000;padding:18px;background:rgba(0,0,0,.55);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);}
+    .notif-overlay.show{display:flex;}
+    .notif-card{width:100%;max-width:400px;border-radius:28px;overflow:hidden;position:relative;animation:pop .25s cubic-bezier(.34,1.56,.64,1);}
+    .notif-card.approved-card{background:linear-gradient(145deg,#0a1628,#0d2137);}
+    .notif-card.rejected-card{background:linear-gradient(145deg,#1a0a0a,#2a0d0d);}
+    .notif-glow{position:absolute;inset:-60px;filter:blur(20px);pointer-events:none;opacity:.7;}
+    .approved-card .notif-glow{background:radial-gradient(circle at 30% 30%,rgba(0,184,148,.6),transparent 50%),radial-gradient(circle at 70% 70%,rgba(0,220,130,.4),transparent 50%);}
+    .rejected-card .notif-glow{background:radial-gradient(circle at 30% 30%,rgba(255,71,87,.55),transparent 50%),radial-gradient(circle at 70% 70%,rgba(255,100,120,.4),transparent 50%);}
+    .notif-body{position:relative;padding:28px 22px 22px;text-align:center;}
+    .notif-icon-wrap{width:80px;height:80px;border-radius:50%;margin:0 auto 18px;display:grid;place-items:center;font-size:2.2rem;}
+    .approved-card .notif-icon-wrap{background:linear-gradient(135deg,rgba(0,184,148,.25),rgba(0,220,130,.15));border:2px solid rgba(0,184,148,.4);color:#00e5aa;box-shadow:0 0 30px rgba(0,184,148,.3);}
+    .rejected-card .notif-icon-wrap{background:linear-gradient(135deg,rgba(255,71,87,.25),rgba(255,100,120,.15));border:2px solid rgba(255,71,87,.4);color:#ff6b81;box-shadow:0 0 30px rgba(255,71,87,.3);}
+    .notif-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;border-radius:99px;font-size:.75rem;font-weight:800;letter-spacing:.8px;margin-bottom:12px;}
+    .approved-card .notif-badge{background:rgba(0,184,148,.15);border:1px solid rgba(0,184,148,.3);color:#00e5aa;}
+    .rejected-card .notif-badge{background:rgba(255,71,87,.15);border:1px solid rgba(255,71,87,.3);color:#ff6b81;}
+    .notif-title{font-size:1.3rem;font-weight:900;color:#fff;margin-bottom:8px;letter-spacing:.3px;}
+    .notif-divider{height:1px;background:rgba(255,255,255,.08);margin:14px 0;}
+    .notif-detail-row{display:flex;justify-content:space-between;align-items:center;padding:8px 14px;border-radius:10px;margin-bottom:6px;}
+    .approved-card .notif-detail-row{background:rgba(0,184,148,.07);}
+    .rejected-card .notif-detail-row{background:rgba(255,71,87,.07);}
+    .notif-detail-label{font-size:.78rem;font-weight:700;color:rgba(255,255,255,.55);}
+    .notif-detail-val{font-size:.88rem;font-weight:800;color:#fff;}
+    .notif-msg{font-size:.82rem;color:rgba(255,255,255,.65);line-height:1.6;margin:12px 0 18px;font-weight:600;}
+    .notif-close-btn{width:100%;border:none;border-radius:14px;padding:14px;font-weight:800;font-size:.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:.2s;}
+    .approved-card .notif-close-btn{background:linear-gradient(135deg,#00b894,#00cec9);color:#fff;}
+    .rejected-card .notif-close-btn{background:linear-gradient(135deg,#ff4757,#ff6b81);color:#fff;}
+    .notif-close-btn:active{transform:scale(.97);}
   </style>
 </head>
 <body>
@@ -298,6 +327,33 @@
   </div>
 
   <div id="toast" class="toast">Alert</div>
+
+  <!-- ===== STATUS NOTIFICATION MODAL ===== -->
+  <div id="statusNotifOverlay" class="notif-overlay">
+    <div id="statusNotifCard" class="notif-card approved-card">
+      <div class="notif-glow"></div>
+      <div class="notif-body">
+        <div class="notif-icon-wrap" id="notifIcon"><i class="fas fa-check"></i></div>
+        <div class="notif-badge" id="notifBadge"><i class="fas fa-bell"></i> <span id="notifBadgeText">UPDATE</span></div>
+        <div class="notif-title" id="notifTitle">Payment Successful!</div>
+        <div class="notif-divider"></div>
+        <div class="notif-detail-row">
+          <span class="notif-detail-label">Method</span>
+          <span class="notif-detail-val" id="notifMethod">—</span>
+        </div>
+        <div class="notif-detail-row">
+          <span class="notif-detail-label">Amount</span>
+          <span class="notif-detail-val" id="notifAmount">—</span>
+        </div>
+        <div class="notif-detail-row">
+          <span class="notif-detail-label">Status</span>
+          <span class="notif-detail-val" id="notifStatus">—</span>
+        </div>
+        <div class="notif-msg" id="notifMsg">Your withdrawal has been processed.</div>
+        <button class="notif-close-btn" onclick="closeStatusNotif()"><i id="notifBtnIcon" class="fas fa-check-circle"></i> <span id="notifBtnText">Got It!</span></button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== Daily Bonus Modal ===== -->
   <div id="bonusOverlay" class="bonus-overlay">
@@ -623,8 +679,13 @@
               const localItem = allWdHistory.find(i => (i.wdId || i.key) === wdId);
               // If admin changed the status, sync it to user's node
               if(localItem && globalData.status && globalData.status !== localItem.status) {
+                const newStatus = globalData.status;
                 db.ref('users/' + appState.user.id + '/withdrawHistory/' + wdId)
-                  .update({ status: globalData.status });
+                  .update({ status: newStatus });
+                // Show in-app notification modal
+                if(newStatus === 'approved' || newStatus === 'rejected') {
+                  showStatusNotif(newStatus, globalData);
+                }
                 // This triggers the wdHistoryListener above, re-rendering automatically
               }
             });
@@ -713,6 +774,54 @@
       // Count completed tasks
       const tasksDone = u.taskHistory ? Object.keys(u.taskHistory).length : 0;
       document.getElementById('ps-tasks').innerText = tasksDone;
+    }
+
+    function showStatusNotif(status, wdData) {
+      const cur = appState.config.currencySymbol || 'TK';
+      const card = document.getElementById('statusNotifCard');
+      const overlay = document.getElementById('statusNotifOverlay');
+      const icon = document.getElementById('notifIcon');
+      const badge = document.getElementById('notifBadge');
+      const badgeText = document.getElementById('notifBadgeText');
+      const title = document.getElementById('notifTitle');
+      const method = document.getElementById('notifMethod');
+      const amount = document.getElementById('notifAmount');
+      const statusEl = document.getElementById('notifStatus');
+      const msg = document.getElementById('notifMsg');
+      const btnIcon = document.getElementById('notifBtnIcon');
+      const btnText = document.getElementById('notifBtnText');
+
+      if(status === 'approved') {
+        card.className = 'notif-card approved-card';
+        icon.innerHTML = '<i class="fas fa-check-circle"></i>';
+        badge.className = 'notif-badge';
+        badgeText.innerText = 'PAYMENT SUCCESSFUL';
+        title.innerText = '🎉 Payment Approved!';
+        statusEl.innerHTML = '<span style="color:#00e5aa;font-weight:900;">✔ Approved</span>';
+        msg.innerText = 'Your withdrawal request has been approved and the payment has been sent to your account. Thank you for using our platform!';
+        btnIcon.className = 'fas fa-check-circle';
+        btnText.innerText = 'Awesome, Got It!';
+      } else {
+        card.className = 'notif-card rejected-card';
+        icon.innerHTML = '<i class="fas fa-times-circle"></i>';
+        badge.className = 'notif-badge';
+        badgeText.innerText = 'REQUEST REJECTED';
+        title.innerText = '⚠️ Request Rejected';
+        statusEl.innerHTML = '<span style="color:#ff6b81;font-weight:900;">✖ Rejected</span>';
+        msg.innerText = 'Your withdrawal was rejected. The amount has been refunded to your account balance. Please verify your account details and try again.';
+        btnIcon.className = 'fas fa-redo';
+        btnText.innerText = 'Okay, I Understand';
+      }
+
+      method.innerText = wdData.method || '—';
+      amount.innerText = `${wdData.amount} ${cur}`;
+      overlay.classList.add('show');
+      document.getElementById('app').classList.add('blurred');
+    }
+
+    function closeStatusNotif() {
+      document.getElementById('statusNotifOverlay').classList.remove('show');
+      document.getElementById('app').classList.remove('blurred');
     }
 
     function openProfileLink(type) {
@@ -942,9 +1051,11 @@
       const refs = appState.user.referrals || 0;
       const needed = Number(appState.config.withdrawRefRequired || 5);
 
+      const maxWd = Number(appState.config.maxWithdraw || 0);
       if(refs < needed) return toast(`উত্তোলনের জন্য ${needed}টি রেফার প্রয়োজন! আপনার: ${refs}`);
       if(!method || !account || !amount) return toast('সব তথ্য পূরণ করুন');
       if(amount < minWd) return toast(`সর্বনিম্ন উত্তোলন: ${minWd}`);
+      if(maxWd > 0 && amount > maxWd) return toast(`সর্বোচ্চ উত্তোলন: ${maxWd}`);
       if(amount > appState.user.balance) return toast('ব্যালেন্স অপর্যাপ্ত');
 
       try {
